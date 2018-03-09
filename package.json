@@ -1,0 +1,25 @@
+{
+  "name": "tumblistr",
+  "version": "0.0.1",
+  "description": "A Tumblr client userscript.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/reppets/tumblistr.git"
+  },
+  "keywords": [
+    "tumblr"
+  ],
+  "author": "reppets",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/reppets/tumblistr/issues"
+  },
+  "homepage": "https://github.com/reppets/tumblistr#readme",
+  "devDependencies": {
+    "webpack": "^4.1.1",
+    "webpack-cli": "^2.0.10"
+  },
+  "scripts": {
+    "build": "webpack --mode development"
+  }
+}
