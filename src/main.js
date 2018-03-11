@@ -6,7 +6,7 @@ try{
         tumblrLogLevel: Tumblr.LOG_DEBUG,
         rootElementId: "#root",
         tokenObserveElementId: "#tokenObserver",
-        callbackUrl: "https://reppets.net/tumblistr/dev/app.html?callback=true",
+        callbackUrl: "https://reppets.net/tumblistr/dev/tumblistr.html?callback=true",
         loadTriggerScrollMarginPx: 80,
         tumblrPostsPerRequest: 20,
         tumblrDashboardOffsetLimit: 250,
@@ -398,6 +398,7 @@ try{
         
         // Vue instance
         let data = Context.data;
+        Vue.use(VueMaterial.default);
         Vue.component('dialog-box', {
             template: '#dialog-template',
             props: ['title', 'message']
