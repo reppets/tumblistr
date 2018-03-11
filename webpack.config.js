@@ -5,7 +5,7 @@ const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {  
   mode: "developent",
-  entry: "./src/app.js",
+  entry: "./src/main.js",
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "tumblistr.user.js"
@@ -13,7 +13,7 @@ module.exports = {
   devtool: "source-map",
   plugins: [
     new webpack.BannerPlugin({
-      banner: fs.readFileSync('./metadata.txt', 'utf-8'),
+      banner: fs.readFileSync('./metadata.js', 'utf-8'),
       raw: true
     }),
     new webpack.LoaderOptionsPlugin({
