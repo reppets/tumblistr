@@ -1,0 +1,466 @@
+$text-post-theme: #565656;
+$photo-post-theme: #dd6e53;
+$quote-post-theme: #f3a342;
+$link-post-theme: #67c395;
+$chat-post-theme: #63a8d1;
+$audio-post-theme: #b08ac8;
+$video-post-theme: #828c95;
+$answer-post-theme: #774c21;
+$dark-bg: #383838;
+$black-bg: #202020;
+$image-bg: #a8a8a8;
+$text-cell-bg: #fbfbfb;
+$reblog-color: #00cc00;
+$like-color: #ca2278;
+$ui-text-color: #fbfbfb;
+
+* {
+	border: none;
+	padding: 0;
+	margin: 0;
+}
+
+video {
+	display:block;
+}
+
+html, body {
+	width: 100%;
+	height: 100%;
+	max-width: 100%;
+	max-height: 100%;
+	background-color: $dark-bg;
+}
+
+select, button, input, option, .post-thumbnail {
+	color: black;
+}
+
+button {
+	padding-right: 3px;
+	padding-left: 3px;
+}
+
+.dialog-background {
+	display: block;
+	position: fixed;
+	z-index: 500;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	background-color: rgba(0,0,0,0.7);
+}
+.dialog-box {
+	border: 1px white;
+	background-color:$dark-bg;
+	display: block;
+	position: absolute;
+	width: auto;
+	height: auto;
+	.dialog-title {
+		display: block;
+	}
+}
+
+#root {
+	width: 100%;
+	height: 100%;
+	max-height: 100%;
+	max-width: 100%;
+}
+
+#grid-container {
+	display: grid;
+	width: 100%;
+	height: 100%;
+	max-width: 100%;
+	max-height: 100%;
+	grid-template-columns: 1fr 50%;
+	grid-template-rows: min-content 1fr min-content;
+
+	#tabs {
+		grid-row: 1;
+		grid-column: 1;
+		overflow-x: hidden;
+		background-color: $black-bg;
+		.tab {
+			display: inline-block;
+			margin: 1px;
+			padding-left: 0.2em;
+			padding-right: 0.2em;
+			border: 1px solid black;
+			color: $ui-text-color;
+			background-color: $dark-bg;
+			white-space: nowrap;
+			text-align: center;
+		}
+		.selected {
+			background-color: $image-bg;
+		}
+		img {
+			display: inline-block;
+			vertical-align: middle;
+		}
+	}
+	#tab-contents {
+		grid-column: 1;
+		grid-row: 2;
+		min-height: 0;
+		.tab-content {
+			height: 100%;
+			max-height: 100%;
+			position: relative;
+			overflow-y: scroll;
+			.post-cell {
+				display: inline-block;
+				position: relative;
+				border: 1px solid black;
+				background-color: $text-cell-bg;
+				margin: 2px;
+				vertical-align: top;
+				font-size: 0;
+				overflow: hidden;
+				&.selected {
+					border-color: red;
+				}
+				.post-thumbnail {
+					display: flex;
+					//position: relative;
+					border: 0;
+					height: 75px;
+					width: 75px;
+					align-items: center;
+					justify-content: center;
+					overflow: hidden;
+					.portrait {
+						height: auto;
+						width: 75px;
+					}
+					.landscape {
+						height: 75px;
+						width: auto;
+					}
+					p {
+						width: 75px;
+						height: 75px;
+						display: block;
+						font-size: xx-small;
+						line-height: 1;
+						word-break: break-all;
+					}
+				}
+				.post-overlay {
+					z-index: 200;
+					position: absolute;
+					left: 0;
+					top: 0;
+					right: 0;
+					bottom: 0;
+					pointer-events: none;
+					.post-icon {
+						display: inline-block;
+						position: absolute;
+						padding: 1px;
+						font-size: small;
+						line-height: 1;
+						text-align: center;
+						color: white;
+						background-color: #323232;
+					}
+					.post-type-icon {
+						right: 0;
+						bottom: 0;
+						padding: 1px;
+						opacity: 0.6;
+					}
+					.action-icon {
+						width: 100%;
+						height: 100%;
+						padding: 1px;
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						opacity: 1;
+						background-color: rgba(0,0,0,0);
+					}
+					.action-history-icon {
+						right: 0;
+						top: 0;
+						padding: 1px;
+						opacity: 0.6;
+					}
+					.reblog-icon {
+						color: $reblog-color;
+					}
+					.like-icon {
+						color: $like-color;
+					}
+				}
+			}
+			
+			.loading {
+				border: 0;
+				color: white;
+				background-color: $dark-bg;
+				font-size:initial;
+				width: 75px;
+				height: 75px;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+		}
+	}
+
+	#controls {
+		grid-column: 1;
+		grid-row: 3;
+		color: $ui-text-color;
+		div {
+			display: inline-block;
+		}
+		#like-control {
+			button {
+				width: 5em;
+			}
+		}
+		#reblog-control {
+			button {
+				width: 5em;
+			}
+		}
+	}
+
+	#post-detail {
+		grid-column: 2;
+		grid-row: 1 / span 3;
+		height: 100%;
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		.detail-content {
+			// flex container
+			flex-grow: 1;
+			flex-shrink: 1;
+			width: 100%;
+			height: 80%;
+			display: flex;
+			flex-flow: row nowrap;
+			justify-content: stretch;
+			position: relative;
+			.detail-body {
+				background-color: $dark-bg;
+				padding: 5px;
+				flex: 1 1 200px;
+				.content {
+					// for centering
+					display: flex;
+					height: 100%;
+					> * {
+						margin: 5px;
+						background-color: white;
+					}
+					&.text {
+						background-color: white;
+						overflow-y: auto;
+						> * {
+							width: 100%;
+						}
+					}
+					&.quote {
+						background-color: white;
+						overflow-y: auto;
+						> * {
+							width: 100%;
+						}
+					}
+					&.link {
+						background-color: white;
+						overflow-y: auto;
+						> * {
+							width: 100%;
+						}
+					}
+					&.chat {
+						background-color: white;
+						overflow-y: auto;
+						> * {
+							width: 100%;
+						}
+					}
+					&.photo {
+						align-items: center;
+						justify-content: center;
+						img {
+							background-color: $image-bg;
+							max-height: 100%;
+							max-width: 100%;
+							width: auto;
+							object-fit: contain;
+						}
+					}
+					&.video {
+						object-fit: contain;
+						align-items: center;
+						justify-content: center;
+						> * {
+							object-fit: scale-down;
+							max-height: 100%;
+							max-width: 100%;
+						}
+						video {
+							max-height: 100%;
+							max-width: 100%;
+							height: auto;
+							width: auto;
+						}
+					}
+				}
+			}
+			.detail-subcontent {
+				background-color: $black-bg;
+				flex: 0 1 auto;
+				display: flex;
+				flex-direction: column;
+				flex-wrap: nowrap;
+				justify-content: flex-start;
+				align-items: center;
+				height: 100%;
+				> * {
+					object-fit: contain;
+					margin: 2px 5px;
+					max-width: 100px;
+					min-width: 15px;
+					min-height: 15px;
+					flex-shrink: 1;
+					flex-grow: 0;
+					filter: brightness(50%);
+					background-color: $image-bg;
+						&:first-child {
+							margin-top: 15px;
+						}
+						&:last-child {
+							margin-bottom: 15px;
+						}
+				}
+				> .selected {
+					filter: brightness(100%);
+				}
+			}
+		}
+		.post-overlay {
+			
+			z-index: 200;
+			position: absolute;
+			left: 0;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			pointer-events: none;
+			.action-icon {
+				width: 100%;
+				height: 100%;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				opacity: 1;
+				background-color: rgba(0,0,0,0);
+			}
+			.action-history-icon {
+				position: absolute;
+				right: 0;
+				top: 0;
+				padding: 1px;
+				opacity: 0.6;
+			}
+		}
+	}
+}
+
+.detail-metadata {
+	flex-grow: 0;
+	flex-shrink: 0;
+	position: relative;
+	box-sizing: border-box;
+	width: 100%;
+	background-color: $dark-bg;
+	color: $ui-text-color;
+	&::before {
+		// dummy content for line spacing
+		content:"0";
+		color: rgba(0,0,0,0);
+	}
+	* {
+		box-sizing: border-box;
+	}
+	img {
+		display: inline-block;
+		vertical-align: middle;
+	}
+	> div {
+		position: absolute;
+		bottom: 0;
+		width: 100%;
+		background-color: rgba(0,0,0,0.75);
+		padding-left: 0.5em;
+		padding-right: 0.5em;
+	}
+	.always-shown {
+		width: 100%;
+	}
+	.action-history {
+		display: inline-block;
+		position: absolute;
+		right: 0;
+		padding-right: 0.5em;
+	}
+	.tag {
+		margin-left: 3px;
+		margin-right: 3px;
+		padding-left: 5px;
+		padding-right: 5px;
+		vertical-align: top;
+		height: 3ex;
+	}
+}
+
+.reblog-icon {
+	color: $reblog-color;
+}
+
+.like-icon {
+	color: $like-color;
+}
+
+.c-text {
+	color: $text-post-theme;
+}
+
+.c-photo {
+	color: $photo-post-theme;
+}
+
+.c-quote {
+	color: $quote-post-theme;
+}
+
+.c-link {
+	color: $link-post-theme;
+}
+
+.c-chat {
+	color: $chat-post-theme;
+}
+
+.c-audio {
+	color: $audio-post-theme;
+}
+
+.c-video {
+	color: $video-post-theme;
+}
+
+.c-answer {
+	color: $answer-post-theme;
+}

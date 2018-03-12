@@ -1,3 +1,5 @@
+import './main.scss';
+
 try{
     console.log('loaded');
     console.log(GM_listValues());
