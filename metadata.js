@@ -8,7 +8,7 @@
 // @require https://cdn.rawgit.com/dmauro/Keypress/2.1.3/keypress-2.1.3.min.js
 // @require https://greasyfork.org/scripts/29810-tumblr-lib-gm/code/tumblr-lib-gm.js?version=211271
 // @require https://unpkg.com/vue
-// @require https://unpkg.com/vue-material@beta
+// @require https://unpkg.com/vuetify/dist/vuetify.js
 // @require https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js
 // @grant GM_xmlhttpRequest
 // @grant GM_deleteValue

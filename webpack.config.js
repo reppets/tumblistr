@@ -21,6 +21,11 @@ module.exports = {
       },{
         loader: 'sass-loader'
       }]
+    }, {
+      test: /\.vue$/,
+      use: [{
+        loader: 'vue-loader'
+      }]
     }]
   },
   plugins: [
