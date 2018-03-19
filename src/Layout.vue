@@ -17,13 +17,13 @@
             </v-layout></v-card-actions>
           </v-card>
           <v-card>
-            <v-card-title class="title"><v-icon>home</v-icon>Dashboard</v-card-title>
+            <v-card-title class="title"><v-icon>favorite</v-icon>Likes</v-card-title>
             <v-card-actions><v-layout justify-end align-center>
               <v-btn color="primary">Open</v-btn>
             </v-layout></v-card-actions>
           </v-card>
           <v-card>
-            <v-card-title class="title">Blog</v-card-title>
+            <v-card-title class="title"><v-icon>dashboard</v-icon>Blog</v-card-title>
             <v-card-actions><v-layout justify-end align-center>
               <v-flex xs3 mx-1><v-text-field label="Blog Name"></v-text-field></v-flex>
               <v-flex xs2 mx-1><v-select label="Post Type"></v-select></v-flex>
