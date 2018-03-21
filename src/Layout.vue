@@ -4,7 +4,7 @@
       <v-tabs id="tab-bar" dark color="grey darken-3" slider-color="grey" v-model="activeTab">
         <v-tab><v-icon>add</v-icon></v-tab>
       </v-tabs>
-      <AccountMenu id="account-menu" />
+      <AccountMenu id="account-menu" :userData="userData"/>
     </div>
     <div id="content-area">
       <v-tabs-items v-model="activeTab" class="tab-content">
@@ -47,11 +47,23 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-bind:value="authStage == 1" persistent max-width="600px">
+      <v-card>
+        <v-card-title class="title">Please authorize the app</v-card-title>
+        <v-card-actions>
+          <v-layout justify-center>
+          <v-progress-circular indeterminate />
+          </v-layout>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-layout></v-container></v-content></v-app>
 </template>
 
 <script>
 import AccountMenu from "./AccountMenu.vue";
+import {Context} from "./context.js";
 
 export default {
   data() {
@@ -63,7 +75,8 @@ export default {
     };
   },
   props : {
-    authStage: Number
+    authStage: Number,
+    userData: Object
   },
   components: {
     AccountMenu
@@ -71,13 +84,12 @@ export default {
   methods: {
     validateKeys: function() {
       this.validatingKeys=true;
-      let client = new Tumblr(this.consumerKey, this.consumerSecret);
+      Context.client = new Tumblr(this.consumerKey, this.consumerSecret);
       let self = this;
       client.getRequestToken('callback.dummy', {
         onload: function(response) {
-          console.log(response);
           if (response.status === 200) {
-            self.$emit('update', 'consumerKeySet', {client: client, consumerToken:self.consumerKey, consumerSecret:self.consumerSecret});
+            self.$emit('update', 'consumerKeySet', {consumerToken:self.consumerKey, consumerSecret:self.consumerSecret});
             self.validatingKeys = false;
           } else if (response.status === 401) {
 
