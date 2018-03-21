@@ -35,6 +35,18 @@
       </v-tabs-items>
     </div>
 
+    <v-dialog v-bind:value="authStage == 0" persistent max-width="600px">
+      <v-card>
+        <v-card-title class="title">Set API Keys</v-card-title>
+        <v-card-text>
+          <v-text-field label="Consumer Key" v-model="consumerKey" required />
+          <v-text-field label="Consumer Secret" v-model="consumerSecret" required />
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="primary" :loading="validatingKeys" @click="validateKeys">Save</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-layout></v-container></v-content></v-app>
 </template>
 
@@ -44,11 +56,37 @@ import AccountMenu from "./AccountMenu.vue";
 export default {
   data() {
     return {
-      activeTab: "0"
+      activeTab: "0",
+      consumerKey: null,
+      consumerSecret: null,
+      validatingKeys: false,
     };
+  },
+  props : {
+    authStage: Number
   },
   components: {
     AccountMenu
+  },
+  methods: {
+    validateKeys: function() {
+      this.validatingKeys=true;
+      let client = new Tumblr(this.consumerKey, this.consumerSecret);
+      let self = this;
+      client.getRequestToken('callback.dummy', {
+        onload: function(response) {
+          console.log(response);
+          if (response.status === 200) {
+            self.$emit('update', 'consumerKeySet', {client: client, consumerToken:self.consumerKey, consumerSecret:self.consumerSecret});
+            self.validatingKeys = false;
+          } else if (response.status === 401) {
+
+          } else {
+
+          }
+        }
+      })
+    }
   }
 };
 </script>
