@@ -35,20 +35,20 @@
       </v-tabs-items>
     </div>
 
-    <v-dialog v-bind:value="authStage == 0" persistent max-width="600px">
+    <v-dialog v-bind:value="authStage === 'consumer-token-unset'" persistent max-width="600px">
       <v-card>
         <v-card-title class="title">Set API Keys</v-card-title>
         <v-card-text>
-          <v-text-field label="Consumer Key" v-model="consumerKey" required />
+          <v-text-field label="Consumer Key" v-model="consumerToken" required />
           <v-text-field label="Consumer Secret" v-model="consumerSecret" required />
         </v-card-text>
         <v-card-actions>
-          <v-btn color="primary" :loading="validatingKeys" @click="validateKeys">Save</v-btn>
+          <v-btn color="primary" :loading="authStage === 'consumer-token-set'" @click="setConsumerToken">Save</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
-    <v-dialog v-bind:value="authStage == 1" persistent max-width="600px">
+    <v-dialog v-bind:value="authStage === 'user-token-unset'" persistent max-width="600px">
       <v-card>
         <v-card-title class="title">Please authorize the app</v-card-title>
         <v-card-actions>
@@ -69,35 +69,21 @@ export default {
   data() {
     return {
       activeTab: "0",
-      consumerKey: null,
+      consumerToken: null,
       consumerSecret: null,
       validatingKeys: false,
     };
   },
   props : {
-    authStage: Number,
+    authStage: String,
     userData: Object
   },
   components: {
     AccountMenu
   },
   methods: {
-    validateKeys: function() {
-      this.validatingKeys=true;
-      Context.client = new Tumblr(this.consumerKey, this.consumerSecret);
-      let self = this;
-      client.getRequestToken('callback.dummy', {
-        onload: function(response) {
-          if (response.status === 200) {
-            self.$emit('update', 'consumerKeySet', {consumerToken:self.consumerKey, consumerSecret:self.consumerSecret});
-            self.validatingKeys = false;
-          } else if (response.status === 401) {
-
-          } else {
-
-          }
-        }
-      })
+    setConsumerToken: function() {
+      this.$emit('update', 'consumerTokenSet', {consumerToken: this.consumerToken, consumerSecret: this.consumerSecret});
     }
   }
 };

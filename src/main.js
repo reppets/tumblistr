@@ -35,15 +35,19 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
     function authorize() {
         Context.client.getRequestToken(CALLBACK_URL, {
             onload: function (response) {
+                console.log(response);
                 if (response.status === 200) {
                     let params = splitParameter(response.responseText);
                     new MutationObserver(tokenObserver(params.oauth_token, params.oauth_token_secret, Context.client, function (token, secret) {
                         Stored.userToken = { token: token, secret: secret };
                         Context.client.setToken(token, secret);
-                        data.props.authStage = 2;
+                        data.props.authStage = 'user-token-set';
                         fetchUserData();
                     })).observe(document.querySelector(TOKEN_OBSERVER_ID), { childList: true });
                     window.open(Context.client.getAuthorizeURL(params.oauth_token), '_blank');
+                } else if (response.status === 401) {
+                    Stored.consumerToken = null;
+                    data.props.authStage = 'consumer-token-unset';
                 }
             }
         })
@@ -63,19 +67,19 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
     let userToken = Stored.userToken;
     let data = {
         props: {
-            authStage: 0,
+            authStage: 'consumer-token-unset',
             userData: null
         }
     }
 
     if (consumerToken) {
         if (userToken) {
-            data.props.authStage = 2;
+            data.props.authStage = 'user-token-set';
             Context.client = new Tumblr(consumerToken.token, consumerToken.secret);
             Context.client.setToken(userToken.token, userToken.secret);
             fetchUserData();
         } else {
-            data.props.authStage = 1;
+            data.props.authStage = 'user-token-unset';
             Context.client = new Tumblr(consumerToken.token, consumerToken.secret);
             authorize();
         }
@@ -88,9 +92,10 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
         data: data,
         methods: {
             update: function (type, value) {
-                if (type = "consumerKeySet") {
+                if (type = "consumerTokenSet") {
                     Stored.consumerToken = { token: value.consumerToken, secret: value.consumerSecret };
-                    this.props.authStage = 1;
+                    this.props.authStage = 'consumer-token-set';
+                    Context.client = new Tumblr(value.consumerToken, value.consumerSecret);
                     this.authorize();
                 }
             },
