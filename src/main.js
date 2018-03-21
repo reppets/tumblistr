@@ -2,29 +2,10 @@ import Layout from './Layout.vue';
 import { isValidCallback, setTokenToOpener, tokenObserver } from './token.js';
 import { splitParameter } from './utils.js';
 import { Context } from './context.js';
-
-const Stored = {
-    get consumerToken() {
-        return GM_getValue('consumer_token', null);
-    },
-    set consumerToken(value) {
-        GM_setValue('consumer_token', value);
-    },
-    get userToken() {
-        return GM_getValue('user_token', null);
-    },
-    set userToken(value) {
-        GM_setValue('user_token', value);
-    },
-    clear: function () {
-        GM_deleteValue('consumer_token');
-        GM_deleteValue('user_token');
-    }
-};
+import {Stored} from './stored.js';
 
 const TOKEN_OBSERVER_ID = '#tokenObserver';
 const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=true';
-
 
 (function main() {
 
@@ -38,6 +19,19 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 
     // add function to window for callback.
     window.eval('window.oauthCallback=function(token,verifier){document.querySelector("' + TOKEN_OBSERVER_ID + '").insertAdjacentHTML("beforeend", "<input type=\\"hidden\\"name=\\""+token+"\\" value=\\""+verifier+"\\">")}');
+
+    // append stylesheet element
+    (function () {
+        let font = document.createElement('link');
+        font.setAttribute('rel', 'stylesheet');
+        font.setAttribute('href', 'https://fonts.googleapis.com/css?family=Roboto:400,500,700,400italic|Material+Icons');
+        document.head.appendChild(font);
+        let style = document.createElement('link');
+        style.setAttribute('rel', 'stylesheet');
+        style.setAttribute('href', 'https://unpkg.com/vuetify/dist/vuetify.min.css');
+        document.head.appendChild(style);
+    })();
+
     function authorize() {
         Context.client.getRequestToken(CALLBACK_URL, {
             onload: function (response) {
@@ -64,18 +58,6 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
             }
         });
     }
-
-    (function () {
-        let font = document.createElement('link');
-        font.setAttribute('rel', 'stylesheet');
-        font.setAttribute('href', 'https://fonts.googleapis.com/css?family=Roboto:400,500,700,400italic|Material+Icons');
-        document.head.appendChild(font);
-        let style = document.createElement('link');
-        style.setAttribute('rel', 'stylesheet');
-        style.setAttribute('href', 'https://unpkg.com/vuetify/dist/vuetify.min.css');
-        document.head.appendChild(style);
-    })();
-
 
     let consumerToken = Stored.consumerToken;
     let userToken = Stored.userToken;
@@ -108,7 +90,6 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
             update: function (type, value) {
                 if (type = "consumerKeySet") {
                     Stored.consumerToken = { token: value.consumerToken, secret: value.consumerSecret };
-                    Context.client = value.client;
                     this.props.authStage = 1;
                     this.authorize();
                 }
