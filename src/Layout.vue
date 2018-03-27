@@ -1,19 +1,23 @@
 <template>
   <v-app><v-content><v-container fluid fill-height pa-0><v-layout column>
-    <div id="header-area">
-      <v-tabs id="tab-bar" dark color="grey darken-3" slider-color="grey" v-model="activeTab">
+    <div id="header-area" style="max-width:100vw">
+      <v-tabs id="tab-bar" v-model="activeTab" show-arrows>
+        <v-tab v-for="tab in tabs" :key="tab.key"><span v-if="tab.type==='dashboard'" class="tab-label"><v-icon>home</v-icon>Dashboard<v-icon small v-if="tab.args.filter==='text'" class="c-text">description</v-icon></span></v-tab>
         <v-tab><v-icon>add</v-icon></v-tab>
       </v-tabs>
       <AccountMenu id="account-menu" :userData="userData"/>
     </div>
     <div id="content-area">
       <v-tabs-items v-model="activeTab" class="tab-content">
-        <v-tab-item key="tab-1" class="opener-tab v-scroll">
+        <v-tab-item v-for="tab in tabs" :key="tab.key" :transition="false" :reverse-transition="false">
+          <div>eeee</div>
+        </v-tab-item>
+        <v-tab-item class="opener-tab v-scroll" :transition="false" :reverse-transition="false">
           <v-card>
             <v-card-title class="title"><v-icon>home</v-icon>Dashboard</v-card-title>
             <v-card-actions><v-layout justify-end align-center>
-              <v-flex xs2 mx-1><v-select label="Post Type"></v-select></v-flex>
-              <v-btn color="primary">Open</v-btn>
+              <v-flex xs2 mx-1><v-select label="Post Type" v-model="dashboardType" :items="types" prepend-icon="filter_list" dense></v-select></v-flex>
+              <v-btn color="primary" @click.stop="open('dashboard', {filter:dashboardType})">Open</v-btn>
             </v-layout></v-card-actions>
           </v-card>
           <v-card>
@@ -69,14 +73,20 @@ export default {
   data() {
     return {
       activeTab: "0",
+      tabs: [],
       consumerToken: null,
       consumerSecret: null,
       validatingKeys: false,
+      dashboardType: null,
+      types: [
+        {text:'All', value:null}, {text:'Text', value:'text'}, {text:'Photo', value:'photo'}, 
+        {text:'Quote', value:'quote'}, {text:'Link', value:'link'}, {text:'Chat', value:'chat'},
+        {text: 'Audio', value: 'audio'}, {text:'Video', value:'audio'}, {text:'Answer',value:'answer'}]
     };
   },
   props : {
     authStage: String,
-    userData: Object
+    userData: Object,
   },
   components: {
     AccountMenu
@@ -84,9 +94,30 @@ export default {
   methods: {
     setConsumerToken: function() {
       this.$emit('update', 'consumerTokenSet', {consumerToken: this.consumerToken, consumerSecret: this.consumerSecret});
+    },
+    open: function(type, args) {
+      let idx = this.tabs.findIndex(e=>e.key===key(type, args));
+      if (idx>=0) {
+        this.activeTab = (idx+1).toString();
+        return;
+      }
+      this.tabs.push({
+        type: type,
+        args: args,
+        key: key(type, args)
+      });
+      this.activeTab = (this.tabs.length).toString();
+    },
+    log: function(print) {
+      console.log(print);
     }
   }
 };
+
+function key(type, args) {
+  return [type,args.blogName,args.filter,args.tag].join('-');
+}
+
 </script>
 
 <style lang="scss">
@@ -158,6 +189,36 @@ html {
     margin-bottom: 1em;
   }
 }
+
+.tab-label {
+  display: inline-flex;
+  justify-content:center;
+  align-items: center;
+}
+
+.c-text {
+  color: #565656; }
+
+.c-photo {
+  color: #dd6e53; }
+
+.c-quote {
+  color: #f3a342; }
+
+.c-link {
+  color: #67c395; }
+
+.c-chat {
+  color: #63a8d1; }
+
+.c-audio {
+  color: #b08ac8; }
+
+.c-video {
+  color: #828c95; }
+
+.c-answer {
+  color: #774c21; }
 </style>
 
 

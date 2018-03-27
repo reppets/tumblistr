@@ -35,7 +35,6 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
     function authorize() {
         Context.client.getRequestToken(CALLBACK_URL, {
             onload: function (response) {
-                console.log(response);
                 if (response.status === 200) {
                     let params = splitParameter(response.responseText);
                     new MutationObserver(tokenObserver(params.oauth_token, params.oauth_token_secret, Context.client, function (token, secret) {
@@ -68,7 +67,8 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
     let data = {
         props: {
             authStage: 'consumer-token-unset',
-            userData: null
+            userData: null,
+            tabs: []
         }
     }
 
