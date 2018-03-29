@@ -2,7 +2,17 @@
   <v-app><v-content><v-container fluid fill-height pa-0><v-layout column>
     <div id="header-area" style="max-width:100vw">
       <v-tabs id="tab-bar" v-model="activeTab" show-arrows>
-        <v-tab v-for="tab in tabs" :key="tab.key"><span v-if="tab.type==='dashboard'" class="tab-label"><v-icon>home</v-icon>Dashboard<v-icon small v-if="tab.args.filter==='text'" class="c-text">description</v-icon></span></v-tab>
+        <v-tab v-for="tab in tabs" :key="tab.key">
+          <span v-if="tab.type==='dashboard'" class="tab-label">
+            <v-icon>home</v-icon>Dashboard
+            <v-icon small v-if="tab.args.filter==='text'" class="c-text">description</v-icon>
+            <v-icon small v-else-if="tab.args.filter==='photo'" class="c-photo">camera_alt</v-icon>
+            <v-icon small v-else-if="tab.args.filter==='quote'" class="c-quote">format_quote</v-icon>
+            <v-icon small v-else-if="tab.args.filter==='link'" class="c-link">link</v-icon>
+            <v-icon small v-else-if="tab.args.filter==='chat'" class="c-chat">chat</v-icon>
+            <v-icon small v-else-if="tab.args.filter==='audio'" class="c-audio">audiotrack</v-icon>
+            <v-icon small v-else-if="tab.args.filter==='answer'" class="c-answer">question_answer</v-icon>
+          </span></v-tab>
         <v-tab><v-icon>add</v-icon></v-tab>
       </v-tabs>
       <AccountMenu id="account-menu" :userData="userData"/>
@@ -197,28 +207,28 @@ html {
 }
 
 .c-text {
-  color: #565656; }
+  color: #565656 !important; }
 
 .c-photo {
-  color: #dd6e53; }
+  color: #dd6e53 !important; }
 
 .c-quote {
-  color: #f3a342; }
+  color: #f3a342 !important; }
 
 .c-link {
-  color: #67c395; }
+  color: #67c395 !important; }
 
 .c-chat {
-  color: #63a8d1; }
+  color: #63a8d1 !important; }
 
 .c-audio {
-  color: #b08ac8; }
+  color: #b08ac8 !important; }
 
 .c-video {
-  color: #828c95; }
+  color: #828c95 !important; }
 
 .c-answer {
-  color: #774c21; }
+  color: #774c21 !important; }
 </style>
 
 
