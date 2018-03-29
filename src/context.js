@@ -1,4 +1,5 @@
 
 export const Context = {
-    client: null
+    client: null,
+    eventBus: null
 }

@@ -85,6 +85,16 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
         }
     }
 
+    Context.eventBus = new Vue();
+    let keyListener = new window.keypress.Listener();
+    keyListener.register_combo({
+        keys: 'o',
+        on_keyup: function() {
+            console.log('o pushed');
+            Context.eventBus.$emit('show-tab-opener');
+        }
+    })
+
     let vm = new Vue({
         el: '#root',
         template: '<Layout v-bind="props" v-on:update="update"/>',

@@ -12,7 +12,21 @@
             <v-icon small v-else-if="tab.args.filter==='chat'" class="c-chat">chat</v-icon>
             <v-icon small v-else-if="tab.args.filter==='audio'" class="c-audio">audiotrack</v-icon>
             <v-icon small v-else-if="tab.args.filter==='answer'" class="c-answer">question_answer</v-icon>
-          </span></v-tab>
+          </span>
+          <span v-else-if="tab.type==='likes'" class="tab-label">
+            <v-icon>favorite</v-icon>Likes
+          </span>
+          <span v-else-if="tab.type==='blog'" class="tab-label">
+            <img :src="avatarUrl(tab.args.blogName, 24)">{{ tab.args.blogName }}
+            <v-icon small v-if="tab.args.filter==='text'" class="c-text">description</v-icon>
+            <v-icon small v-else-if="tab.args.filter==='photo'" class="c-photo">camera_alt</v-icon>
+            <v-icon small v-else-if="tab.args.filter==='quote'" class="c-quote">format_quote</v-icon>
+            <v-icon small v-else-if="tab.args.filter==='link'" class="c-link">link</v-icon>
+            <v-icon small v-else-if="tab.args.filter==='chat'" class="c-chat">chat</v-icon>
+            <v-icon small v-else-if="tab.args.filter==='audio'" class="c-audio">audiotrack</v-icon>
+            <v-icon small v-else-if="tab.args.filter==='answer'" class="c-answer">question_answer</v-icon>
+          </span>
+        </v-tab>
         <v-tab><v-icon>add</v-icon></v-tab>
       </v-tabs>
       <AccountMenu id="account-menu" :userData="userData"/>
@@ -26,23 +40,23 @@
           <v-card>
             <v-card-title class="title"><v-icon>home</v-icon>Dashboard</v-card-title>
             <v-card-actions><v-layout justify-end align-center>
-              <v-flex xs2 mx-1><v-select label="Post Type" v-model="dashboardType" :items="types" prepend-icon="filter_list" dense></v-select></v-flex>
+              <v-flex xs2 mx-1><v-select label="Post Type" v-model="dashboardType" :items="types" dense></v-select></v-flex>
               <v-btn color="primary" @click.stop="open('dashboard', {filter:dashboardType})">Open</v-btn>
             </v-layout></v-card-actions>
           </v-card>
           <v-card>
             <v-card-title class="title"><v-icon>favorite</v-icon>Likes</v-card-title>
             <v-card-actions><v-layout justify-end align-center>
-              <v-btn color="primary">Open</v-btn>
+              <v-btn color="primary" @click.stop="open('likes', {})">Open</v-btn>
             </v-layout></v-card-actions>
           </v-card>
           <v-card>
             <v-card-title class="title"><v-icon>dashboard</v-icon>Blog</v-card-title>
             <v-card-actions><v-layout justify-end align-center>
-              <v-flex xs3 mx-1><v-text-field label="Blog Name"></v-text-field></v-flex>
-              <v-flex xs2 mx-1><v-select label="Post Type"></v-select></v-flex>
-              <v-flex xs3 mx-1><v-text-field label="Tag Filter"></v-text-field></v-flex>
-              <v-btn color="primary">Open</v-btn>
+              <v-flex xs3 mx-1><v-text-field label="Blog Name" v-model="blogName"></v-text-field></v-flex>
+              <v-flex xs2 mx-1><v-select label="Post Type" v-model="blogType" :items="types" dense></v-select></v-flex>
+              <v-flex xs3 mx-1><v-text-field label="Tag Filter" v-model="blogTag"></v-text-field></v-flex>
+              <v-btn color="primary" @click.stop="open('blog', {blogName: blogName, type: blogType, tag: blogTag})">Open</v-btn>
             </v-layout></v-card-actions>
           </v-card>
         </v-tab-item>
@@ -88,6 +102,9 @@ export default {
       consumerSecret: null,
       validatingKeys: false,
       dashboardType: null,
+      blogName: null,
+      blogType: null,
+      blogTag: null,
       types: [
         {text:'All', value:null}, {text:'Text', value:'text'}, {text:'Photo', value:'photo'}, 
         {text:'Quote', value:'quote'}, {text:'Link', value:'link'}, {text:'Chat', value:'chat'},
@@ -118,9 +135,15 @@ export default {
       });
       this.activeTab = (this.tabs.length).toString();
     },
+    avatarUrl: function(blogName, size) {
+      return Context.client.getAvatarURL(blogName+".tumblr.com", size);
+    },
     log: function(print) {
       console.log(print);
     }
+  },
+  mounted: function() {
+    Context.eventBus.$on('show-tab-opener', () => this.activeTab="0");
   }
 };
 
