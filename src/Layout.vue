@@ -4,27 +4,14 @@
       <v-tabs id="tab-bar" v-model="activeTab" show-arrows>
         <v-tab v-for="tab in tabs" :key="tab.key">
           <span v-if="tab.type==='dashboard'" class="tab-label">
-            <v-icon>home</v-icon>Dashboard
-            <v-icon small v-if="tab.args.filter==='text'" class="c-text">description</v-icon>
-            <v-icon small v-else-if="tab.args.filter==='photo'" class="c-photo">camera_alt</v-icon>
-            <v-icon small v-else-if="tab.args.filter==='quote'" class="c-quote">format_quote</v-icon>
-            <v-icon small v-else-if="tab.args.filter==='link'" class="c-link">link</v-icon>
-            <v-icon small v-else-if="tab.args.filter==='chat'" class="c-chat">chat</v-icon>
-            <v-icon small v-else-if="tab.args.filter==='audio'" class="c-audio">audiotrack</v-icon>
-            <v-icon small v-else-if="tab.args.filter==='answer'" class="c-answer">question_answer</v-icon>
+            <v-icon>home</v-icon>Dashboard<TypeIcon v-if="tab.args.filter" :type="tab.args.filter"/>
           </span>
           <span v-else-if="tab.type==='likes'" class="tab-label">
             <v-icon>favorite</v-icon>Likes
           </span>
           <span v-else-if="tab.type==='blog'" class="tab-label">
             <img :src="avatarUrl(tab.args.blogName, 24)">{{ tab.args.blogName }}
-            <v-icon small v-if="tab.args.filter==='text'" class="c-text">description</v-icon>
-            <v-icon small v-else-if="tab.args.filter==='photo'" class="c-photo">camera_alt</v-icon>
-            <v-icon small v-else-if="tab.args.filter==='quote'" class="c-quote">format_quote</v-icon>
-            <v-icon small v-else-if="tab.args.filter==='link'" class="c-link">link</v-icon>
-            <v-icon small v-else-if="tab.args.filter==='chat'" class="c-chat">chat</v-icon>
-            <v-icon small v-else-if="tab.args.filter==='audio'" class="c-audio">audiotrack</v-icon>
-            <v-icon small v-else-if="tab.args.filter==='answer'" class="c-answer">question_answer</v-icon>
+            <v-icon>home</v-icon>Dashboard<TypeIcon v-if="tab.args.filter" :type="tab.args.filter"/>
           </span>
         </v-tab>
         <v-tab><v-icon>add</v-icon></v-tab>
@@ -91,6 +78,7 @@
 
 <script>
 import AccountMenu from "./AccountMenu.vue";
+import TypeIcon from "./TypeIcon.vue";
 import {Context} from "./context.js";
 
 export default {
@@ -116,7 +104,7 @@ export default {
     userData: Object,
   },
   components: {
-    AccountMenu
+    AccountMenu, TypeIcon
   },
   methods: {
     setConsumerToken: function() {
