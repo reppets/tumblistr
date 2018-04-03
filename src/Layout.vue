@@ -111,7 +111,7 @@ export default {
   },
   methods: {
     setConsumerToken: function() {
-      this.$emit('update', 'consumerTokenSet', {consumerToken: this.consumerToken, consumerSecret: this.consumerSecret});
+      Context.eventBus.$emit('set-consumer-token', {consumerToken: this.consumerToken, consumerSecret: this.consumerSecret});
     },
     open: function(type, args) {
       let idx = this.tabs.findIndex(e=>e.key===key(type, args));
@@ -130,7 +130,7 @@ export default {
       return Context.client.getAvatarURL(blogName+".tumblr.com", size);
     },
     openAuthPage: function() {
-      Context.eventBus.$emit('authorize-request');
+      Context.eventBus.$emit('authorize');
     },
     log: function(print) {
       console.log(print);
