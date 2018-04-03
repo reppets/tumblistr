@@ -20,9 +20,11 @@
     </div>
     <div id="content-area">
       <v-tabs-items v-model="activeTab" class="tab-content">
+
         <v-tab-item v-for="tab in tabs" :key="tab.key" :transition="false" :reverse-transition="false">
           <div>eeee</div>
         </v-tab-item>
+
         <v-tab-item class="opener-tab v-scroll" :transition="false" :reverse-transition="false">
           <v-card>
             <v-card-title class="title"><v-icon>home</v-icon>Dashboard</v-card-title>
@@ -68,7 +70,7 @@
         <v-card-title class="title">Please authorize the app</v-card-title>
         <v-card-actions>
           <v-layout justify-center>
-          <v-progress-circular indeterminate />
+            <v-btn color="primary" @click="openAuthPage" :loading="authorizing">Authorize</v-btn>
           </v-layout>
         </v-card-actions>
       </v-card>
@@ -102,6 +104,7 @@ export default {
   props : {
     authStage: String,
     userData: Object,
+    authorizing: Boolean
   },
   components: {
     AccountMenu, TypeIcon
@@ -125,6 +128,9 @@ export default {
     },
     avatarUrl: function(blogName, size) {
       return Context.client.getAvatarURL(blogName+".tumblr.com", size);
+    },
+    openAuthPage: function() {
+      Context.eventBus.$emit('authorize-request');
     },
     log: function(print) {
       console.log(print);

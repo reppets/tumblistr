@@ -33,6 +33,7 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
     })();
 
     function authorize() {
+        data.props.authorizing = true;
         Context.client.getRequestToken(CALLBACK_URL, {
             onload: function (response) {
                 if (response.status === 200) {
@@ -41,6 +42,7 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
                         Stored.userToken = { token: token, secret: secret };
                         Context.client.setToken(token, secret);
                         data.props.authStage = 'user-token-set';
+                        data.props.authorizing = false;
                         fetchUserData();
                     })).observe(document.querySelector(TOKEN_OBSERVER_ID), { childList: true });
                     window.open(Context.client.getAuthorizeURL(params.oauth_token), '_blank');
@@ -67,6 +69,7 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
     let data = {
         props: {
             authStage: 'consumer-token-unset',
+            authorizing: false,
             userData: null,
             tabs: []
         }
@@ -81,7 +84,6 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
         } else {
             data.props.authStage = 'user-token-unset';
             Context.client = new Tumblr(consumerToken.token, consumerToken.secret);
-            authorize();
         }
     }
 
@@ -93,6 +95,16 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
             console.log('o pushed');
             Context.eventBus.$emit('show-tab-opener');
         }
+    })
+
+    Context.eventBus.$on('forget-account', function() {
+        Stored.userToken = null;
+        data.props.userData = null;
+        data.props.authStage = 'user-token-unset';
+    });
+
+    Context.eventBus.$on('authorize-request', function() {
+        authorize();
     })
 
     let vm = new Vue({
