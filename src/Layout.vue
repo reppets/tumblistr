@@ -21,8 +21,10 @@
     <div id="content-area">
       <v-tabs-items v-model="activeTab" class="tab-content">
 
-        <v-tab-item v-for="tab in tabs" :key="tab.key" :transition="false" :reverse-transition="false">
-          <div>eeee</div>
+        <v-tab-item v-for="tab in tabs" :key="tab.key" :transition="false" :reverse-transition="false" style="max-height:100%; height:100%">
+          <ContentPane>
+						<DashboardList slot="list" v-if="tab.type === 'dashboard'" :type="tab.args.filter"></DashboardList>
+          </ContentPane>
         </v-tab-item>
 
         <v-tab-item class="opener-tab v-scroll" :transition="false" :reverse-transition="false">
@@ -81,6 +83,8 @@
 <script>
 import AccountMenu from "./AccountMenu.vue";
 import TypeIcon from "./TypeIcon.vue";
+import ContentPane from "./ContentPane.vue";
+import DashboardList from "./DashboardList.vue";
 import {Context} from "./context.js";
 
 export default {
@@ -107,7 +111,7 @@ export default {
     authorizing: Boolean
   },
   components: {
-    AccountMenu, TypeIcon
+    AccountMenu, TypeIcon, ContentPane, DashboardList
   },
   methods: {
     setConsumerToken: function() {
@@ -197,6 +201,7 @@ html {
 .v-scroll {
   overflow-y: auto;
   max-height: 100%;
+  height: 100%;
 }
 
 .v-flex {
