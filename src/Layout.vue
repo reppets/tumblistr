@@ -23,7 +23,7 @@
 
         <v-tab-item v-for="tab in tabs" :key="tab.key" :transition="false" :reverse-transition="false" style="max-height:100%; height:100%">
           <ContentPane>
-						<DashboardList slot="list" v-if="tab.type === 'dashboard'" :type="tab.args.filter"></DashboardList>
+						<ContentList slot="list" v-if="tab.type === 'dashboard'" :type="tab.args.filter"></ContentList>
           </ContentPane>
         </v-tab-item>
 
@@ -84,7 +84,7 @@
 import AccountMenu from "./AccountMenu.vue";
 import TypeIcon from "./TypeIcon.vue";
 import ContentPane from "./ContentPane.vue";
-import DashboardList from "./DashboardList.vue";
+import ContentList from "./ContentList.vue";
 import {Context} from "./context.js";
 
 export default {
@@ -111,7 +111,7 @@ export default {
     authorizing: Boolean
   },
   components: {
-    AccountMenu, TypeIcon, ContentPane, DashboardList
+    AccountMenu, TypeIcon, ContentPane, ContentList
   },
   methods: {
     setConsumerToken: function() {
