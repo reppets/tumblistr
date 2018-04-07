@@ -1,6 +1,6 @@
 <template>
 	<div class="pane">
-		<div class="v-scroll list"><slot name="list"></slot></div>
+		<div class="v-scroll list" v-handled-element:list @scroll="triggerLoad"><slot name="list"></slot></div>
 		<div class="splitter"></div>
 		<div class="detail"><slot name="detail"></slot></div>
 	</div>
@@ -8,6 +8,14 @@
 
 <script>
 export default {
+	methods: {
+		triggerLoad: function() {
+			let el = this.domElements.list;
+			if (el.scrollTop + el.clientHeight + 5 >= el.scrollHeight) {
+				console.log('to load.')
+			}
+		}
+	}
 
 }
 </script>

@@ -10,6 +10,7 @@ let typeToIcon = {
   link: 'link',
   chat: 'chat',
   audio: 'audiotrack',
+  video: 'videocam',
   answer: 'question_answer'
 }
 

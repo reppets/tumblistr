@@ -102,7 +102,7 @@ export default {
       types: [
         {text:'All', value:null}, {text:'Text', value:'text'}, {text:'Photo', value:'photo'}, 
         {text:'Quote', value:'quote'}, {text:'Link', value:'link'}, {text:'Chat', value:'chat'},
-        {text: 'Audio', value: 'audio'}, {text:'Video', value:'audio'}, {text:'Answer',value:'answer'}]
+        {text: 'Audio', value: 'audio'}, {text:'Video', value:'video'}, {text:'Answer',value:'answer'}]
     };
   },
   props : {

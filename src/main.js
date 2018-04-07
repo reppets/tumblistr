@@ -115,6 +115,15 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 		authorize();
 	});
 
+	Vue.directive('handled-element',{
+		bind: function(el, binding, vnode) {
+			console.log(binding.arg);
+			console.log(vnode.context);
+			if (!vnode.context.domElements) vnode.context.domElements = {};
+			vnode.context.domElements[binding.arg] = el;
+		}
+	})
+
 let vm = new Vue({
 	el: '#root',
 	template: '<Layout v-bind="props" v-on:update="update"/>',

@@ -3,8 +3,17 @@
     <ul class="list">
       <li v-for="(post,index) in posts" :key="post.id"  @click="select(index)" :class="{'selected': index===selected}">
         <div :class="['cell', {'elevation-2': index!==selected, 'elevation-8': index===selected}]">
-          <img v-if="post.type==='photo'" :src="thumbnailUrl(post.photos[0])">
-          <div v-else-if="post.type==='quote'">{{post.text}}</div>
+          <div v-if="post.type==='text'">{{post.summary}}</div>
+          <img v-else-if="post.type==='photo'" :src="thumbnailUrl(post.photos[0])">
+          <div v-else-if="post.type==='quote'">{{post.summary}}</div>
+          <div v-else-if="post.type==='link'"><TypeIcon :type="post.type" />{{post.summary}}</div>
+          <div v-else-if="post.type==='chat'"><TypeIcon :type="post.type" />{{post.summary}}</div>
+          <div v-else-if="post.type==='audio'"><TypeIcon :type="post.type" />{{post.summary}}</div>
+          <div v-else-if="post.type==='video'" class="thumbnail">
+            <img :src="post.thumbnail_url" :class="{portrait: post.thumbnail_width < post.thumbnail_height, landscape:post.thumbnail_width >= post.thumbnail_height}">
+          </div>
+          <div v-else-if="post.type==='answer'"><TypeIcon :type="post.type" />{{post.summary}}</div>
+          <div v-if="post.type==='video'" class="cell-overlay"><TypeIcon :type="post.type" /></div>
         </div>
       </li>
     </ul>
@@ -12,9 +21,13 @@
 </template>
 
 <script>
+import TypeIcon from "./TypeIcon.vue"
 import {Context} from "./context"
 
 export default {
+  components: {
+    TypeIcon
+  },
   props: {
     type: String
   },
@@ -53,29 +66,62 @@ export default {
   width: 100%;
   max-width: 100%;
   line-height: 0;
-  padding: 4px;
+  padding: 8px;
 }
 .cell {
   width: 75px;
   height: 75px;
   overflow: hidden;
+  position: relative;
   div {
     line-height: 1;
     font-size: xx-small;
+    word-break: break-all;
+    i {
+      vertical-align: bottom;
+    }
   }
 }
 
 li {
   display: inline-block;
   margin: 0;
-  padding: 4px;
+  padding: 5px;
   vertical-align: top;
   &.selected {
     padding-top: 0px;
     padding-left: 0px;
-    padding-bottom: 8px;
-    padding-right: 8px;
+    padding-bottom: 10px;
+    padding-right: 10px;
   }
+}
+
+.cell-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 18px;
+  height: 18px;
+  background-color: rgba(255,255,255,0.6);
+}
+.thumbnail {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  height: 75px;
+  width: 75px;
+  img {
+    flex: 0 0 auto;
+  }
+}
+.portrait {
+  width: 75px;
+  height: auto;
+}
+.landscape {
+  height: 75px;
+  width: auto;
 }
 
 </style>
