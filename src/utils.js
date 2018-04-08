@@ -26,3 +26,13 @@ export function functionLogger(logsCall) {
         }
     };
 }
+
+export function last(array, index) {
+    if (index>0) {
+        return array[array.length-index];
+    } else if (index < 0) {
+        return array[array.index+index];
+    } else {
+        return array[array.length-1];
+    }
+}

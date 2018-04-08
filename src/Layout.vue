@@ -22,9 +22,7 @@
       <v-tabs-items v-model="activeTab" class="tab-content">
 
         <v-tab-item v-for="tab in tabs" :key="tab.key" :transition="false" :reverse-transition="false" style="max-height:100%; height:100%">
-          <ContentPane>
-						<ContentList slot="list" v-if="tab.type === 'dashboard'" :type="tab.args.filter"></ContentList>
-          </ContentPane>
+          <DashboardPane v-if="tab.type==='dashboard'" :args="tab.args"></DashboardPane>
         </v-tab-item>
 
         <v-tab-item class="opener-tab v-scroll" :transition="false" :reverse-transition="false">
@@ -86,6 +84,7 @@ import TypeIcon from "./TypeIcon.vue";
 import ContentPane from "./ContentPane.vue";
 import ContentList from "./ContentList.vue";
 import {Context} from "./context.js";
+import DashboardPane from "./DashboardPane.vue";
 
 export default {
   data() {
@@ -111,7 +110,7 @@ export default {
     authorizing: Boolean
   },
   components: {
-    AccountMenu, TypeIcon, ContentPane, ContentList
+    AccountMenu, TypeIcon, ContentPane, ContentList, DashboardPane
   },
   methods: {
     setConsumerToken: function() {
