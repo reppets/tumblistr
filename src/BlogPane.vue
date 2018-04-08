@@ -8,7 +8,6 @@ export default {
   methods: {
 		load: function() {
 			Context.client.getPosts(this.args.blogName, this.args.filter, {offset: this.offset, tag: this.args.tag, reblog_info: false, notes_info: false},{onload: (response) => {
-				console.log(response);
 				let olderPosts = response.response.response.posts;
 				let postsToAdd = olderPosts.filter(p => this.posts.length > 0 ? p.id < last(this.posts).id : true);
 				postsToAdd.forEach(p => this.posts.push(p));

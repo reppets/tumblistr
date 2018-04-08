@@ -46,7 +46,7 @@
               <v-flex xs3 mx-1><v-text-field label="Blog Name" v-model="blogName"></v-text-field></v-flex>
               <v-flex xs2 mx-1><v-select label="Post Type" v-model="blogType" :items="types" dense></v-select></v-flex>
               <v-flex xs3 mx-1><v-text-field label="Tag Filter" v-model="blogTag"></v-text-field></v-flex>
-              <v-btn color="primary" @click.stop="open('blog', {blogName: blogName, type: blogType, tag: blogTag})">Open</v-btn>
+              <v-btn color="primary" @click.stop="open('blog', {blogName: blogName, filter: blogType, tag: blogTag})">Open</v-btn>
             </v-layout></v-card-actions>
           </v-card>
         </v-tab-item>
