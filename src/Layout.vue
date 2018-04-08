@@ -10,8 +10,7 @@
             <v-icon>favorite</v-icon>Likes
           </span>
           <span v-else-if="tab.type==='blog'" class="tab-label">
-            <img :src="avatarUrl(tab.args.blogName, 24)">{{ tab.args.blogName }}
-            <v-icon>home</v-icon>Dashboard<TypeIcon v-if="tab.args.filter" :type="tab.args.filter"/>
+            <img :src="avatarUrl(tab.args.blogName, 24)">{{ tab.args.blogName }}<TypeIcon v-if="tab.args.filter" :type="tab.args.filter"/>
           </span>
         </v-tab>
         <v-tab><v-icon>add</v-icon></v-tab>
@@ -23,6 +22,8 @@
 
         <v-tab-item v-for="tab in tabs" :key="tab.key" :transition="false" :reverse-transition="false" style="max-height:100%; height:100%">
           <DashboardPane v-if="tab.type==='dashboard'" :args="tab.args"></DashboardPane>
+          <LikesPane v-else-if="tab.type==='likes'"></LikesPane>
+          <BlogPane v-else-if="tab.type==='blog'" :args="tab.args"></BlogPane>
         </v-tab-item>
 
         <v-tab-item class="opener-tab v-scroll" :transition="false" :reverse-transition="false">
@@ -79,12 +80,12 @@
 </template>
 
 <script>
+import {Context} from "./context.js";
 import AccountMenu from "./AccountMenu.vue";
 import TypeIcon from "./TypeIcon.vue";
-import ContentPane from "./ContentPane.vue";
-import ContentList from "./ContentList.vue";
-import {Context} from "./context.js";
 import DashboardPane from "./DashboardPane.vue";
+import LikesPane from "./LikesPane.vue";
+import BlogPane from "./BlogPane.vue";
 
 export default {
   data() {
@@ -110,7 +111,7 @@ export default {
     authorizing: Boolean
   },
   components: {
-    AccountMenu, TypeIcon, ContentPane, ContentList, DashboardPane
+    AccountMenu, TypeIcon, DashboardPane, LikesPane, BlogPane
   },
   methods: {
     setConsumerToken: function() {
