@@ -122,7 +122,7 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 			if (!vnode.context.domElements) vnode.context.domElements = {};
 			vnode.context.domElements[binding.arg] = el;
 		}
-	})
+	});
 
 let vm = new Vue({
 	el: '#root',

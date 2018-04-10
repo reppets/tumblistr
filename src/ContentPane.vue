@@ -3,7 +3,7 @@
 		<div class="v-scroll list-pane" v-handled-element:list @scroll="triggerLoad" v-resize="triggerLoad">
 			  <div class="wrapper">
 					<ul class="list">
-						<li v-for="(post,index) in posts" :key="post.id"  @click="select(post, index)" :class="{'selected': post.selected}">
+						<li v-for="(post,index) in posts" :key="post.id"  @click="select(post, index)" :class="{'selected': post.selected}" v-scroll-to-me="post.selected">
 							<div :class="['cell', {'elevation-2': !post.selected, 'elevation-8': post.selected}]">
 								<div v-if="post.type==='text'">{{post.summary}}</div>
 								<img v-else-if="post.type==='photo'" :src="thumbnailUrl(post.photos[0])">
@@ -56,7 +56,16 @@ export default {
   },
   props: {
     args: Object
-  },
+	},
+	directives: {
+		'scroll-to-me': {
+			componentUpdated: function(el, binding) {
+				if (!binding.oldValue && binding.value) {
+					el.scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'nearest'});
+				}
+			}
+		}
+	},
   data: function() {
     return {
       offset: null,
