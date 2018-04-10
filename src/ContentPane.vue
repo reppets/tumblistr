@@ -3,20 +3,8 @@
 		<div class="v-scroll list-pane" v-handled-element:list @scroll="triggerLoad" v-resize="triggerLoad">
 			  <div class="wrapper">
 					<ul class="list">
-						<li v-for="(post,index) in posts" :key="post.id"  @click="select(post, index)" :class="{'selected': post.selected}" v-scroll-to-me="post.selected">
-							<div :class="['cell', {'elevation-2': !post.selected, 'elevation-8': post.selected}]">
-								<div v-if="post.type==='text'">{{post.summary}}</div>
-								<img v-else-if="post.type==='photo'" :src="thumbnailUrl(post.photos[0])">
-								<div v-else-if="post.type==='quote'"><TypeIcon :type="post.type" />{{post.summary}}</div>
-								<div v-else-if="post.type==='link'"><TypeIcon :type="post.type" />{{post.summary}}</div>
-								<div v-else-if="post.type==='chat'"><TypeIcon :type="post.type" />{{post.summary}}</div>
-								<div v-else-if="post.type==='audio'"><TypeIcon :type="post.type" />{{post.summary}}</div>
-								<div v-else-if="post.type==='video'" class="thumbnail">
-									<img :src="post.thumbnail_url" :class="{portrait: post.thumbnail_width < post.thumbnail_height, landscape:post.thumbnail_width >= post.thumbnail_height}">
-								</div>
-								<div v-else-if="post.type==='answer'"><TypeIcon :type="post.type" />{{post.summary}}</div>
-								<div v-if="post.type==='video'" class="cell-overlay"><TypeIcon :type="post.type" /></div>
-							</div>
+						<li v-for="(post,index) in posts" :key="post.id"  @click="select(post, index)" :class="{'selected': post.selected}">
+							<PostCell :post="post"></PostCell>
 						</li>
 					</ul>
 				</div>
@@ -47,12 +35,13 @@
 
 <script>
 import TypeIcon from "./TypeIcon.vue";
+import PostCell from "./PostCell.vue";
 import {Context} from "./context";
 import {last} from "./utils"
 
 export default {
   components: {
-    TypeIcon
+    TypeIcon, PostCell
   },
   props: {
     args: Object
@@ -105,7 +94,7 @@ export default {
 </script>
 
 
-<style lang="scss" scoped>
+<style lang="scss">
 .pane {
 	display: flex;
 	flex-direction: row;
