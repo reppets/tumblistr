@@ -3,11 +3,11 @@
 		<div class="v-scroll list-pane" v-handled-element:list @scroll="triggerLoad" v-resize="triggerLoad">
 			  <div class="wrapper">
 					<ul class="list">
-						<li v-for="(post,index) in posts" :key="post.id"  @click="select(index)" :class="{'selected': index===selected}">
-							<div :class="['cell', {'elevation-2': index!==selected, 'elevation-8': index===selected}]">
+						<li v-for="(post,index) in posts" :key="post.id"  @click="select(post, index)" :class="{'selected': post.selected}">
+							<div :class="['cell', {'elevation-2': !post.selected, 'elevation-8': post.selected}]">
 								<div v-if="post.type==='text'">{{post.summary}}</div>
 								<img v-else-if="post.type==='photo'" :src="thumbnailUrl(post.photos[0])">
-								<div v-else-if="post.type==='quote'">{{post.summary}}</div>
+								<div v-else-if="post.type==='quote'"><TypeIcon :type="post.type" />{{post.summary}}</div>
 								<div v-else-if="post.type==='link'"><TypeIcon :type="post.type" />{{post.summary}}</div>
 								<div v-else-if="post.type==='chat'"><TypeIcon :type="post.type" />{{post.summary}}</div>
 								<div v-else-if="post.type==='audio'"><TypeIcon :type="post.type" />{{post.summary}}</div>
@@ -22,7 +22,26 @@
 				</div>
 		</div>
 		<div class="splitter"></div>
-		<div class="detail"><slot name="detail"></slot></div>
+		<div class="detail">
+			<div class="main-content">
+				<template v-if="selectedPost">
+					<div v-if="selectedPost.type==='text' && selectedPost.format==='html'" class="elevation-2 text-content" v-html="selectedPost.body"></div><!--TODO show title if present -->
+					<img v-if="selectedPost.type==='photo'" :src="selectedPost.photos[0].original_size.url">
+					<div v-if="selectedPost.type==='quote' && selectedPost.format==='html'" class="elevation-2 text-content">
+						<blockquote v-html="selectedPost.text"></blockquote>
+						<div class="source" v-html="selectedPost.source"></div>
+					</div>
+					<div v-if="selectedPost.type==='link' && selectedPost.format==='html'" class="elevation-2 text-content">
+						<a :href="selectedPost.url" target="_blank">{{selectedPost.title}}</a>
+					</div>
+					<div v-else-if="selectedPost.type==='chat' && selectedPost.format==='html'" class="elevation-2 text-content" v-html="selectedPost.body"></div><!--TODO show title if present -->
+					<div v-else-if="selectedPost.type==='audio'" class="elevation-2" v-html="selectedPost.embed"></div>
+					<div v-else-if="selectedPost.type==='video'" class="elevation-2" v-html="selectedPost.player[selectedPost.player.length-1].embed_code"></div>
+				</template>
+			</div>
+			<div class="sub-content">
+			</div>
+		</div>
 	</div>
 </template>
 
@@ -42,10 +61,11 @@ export default {
     return {
       offset: null,
       posts: [],
-			selected: null,
+			selectedIndex: null,
 			loading: false,
 			offset: 0,
-			noOlderPost: false
+			noOlderPost: false,
+			selectedPost: null
     };
   },
   mounted: function() {
@@ -54,7 +74,7 @@ export default {
   methods: {
 		triggerLoad: function() {
 			let el = this.domElements.list;
-			if (el.scrollTop + el.clientHeight + 40 < el.scrollHeight || this.loading) {
+			if (el.scrollTop + el.clientHeight + 80 < el.scrollHeight || this.loading) {
 				return;
 			}
 			this.loading = true;
@@ -63,8 +83,12 @@ export default {
     thumbnailUrl: function(photo) {
       return photo.alt_sizes[photo.alt_sizes.length-1].url;
     },
-    select: function(index) {
-      this.selected = index;
+    select: function(post, index) {
+			console.log(post);
+			if(this.selectedPost) this.selectedPost.selected = false;
+			this.selectedPost = post;
+			this.selectedIndex = index;
+			Vue.set(post, 'selected', true);
     }
   }
   
@@ -79,9 +103,10 @@ export default {
 	align-items: stretch;
 	max-height: 100%;
 	height: 100%;
+	width: 100%;
 }
 .list-pane {
-	flex: 1 1 auto;
+	flex: 1 0 auto;
 	height: 100%;
 	width: 50%;
 	max-width: 50%;
@@ -95,7 +120,35 @@ export default {
 }
 
 .detail {
+	display: flex;
+	flex-direction: row;
 	flex: 1 1 auto;
+	height: 100%;
+	.main-content {
+		flex: 1 1 auto;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		padding: 10px;
+		> img {
+			display: block;
+			max-width: 100%;
+			max-height: 100%;
+			width: auto;
+			object-fit: contain;
+		}
+		> .text-content {
+			overflow-y: auto;
+			max-width: 100%;
+			max-height: 100%;
+			iframe {
+				display: block;
+			}
+		}
+	}
+	.sub-content {
+		flex: 0 1 auto;
+	}
 }
 
 .wrapper {
