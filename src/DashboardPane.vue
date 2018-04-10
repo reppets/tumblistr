@@ -27,7 +27,7 @@ export default {
 			}
 			Context.client.getUserDashboard({since_id: sinceId, type: this.args.filter, tag: this.args.tag, reblog_info: false, notes_info: false},{onload: (response) => {
 				let olderPosts = response.response.response.posts;
-				if (last(olderPosts).id >= last(this.posts).id) {
+				if (last(olderPosts).id >= last(this.posts).id) { // all posts are duplicated.
 					if (posts) {
 						posts.forEach(e => this.posts.push(e));
 						this.loading = false;
@@ -36,9 +36,9 @@ export default {
 						sinceId = last(this.posts).id - (last(this.posts).id - sinceId) * 2;
 						this.loadWithSinceId(sinceId);
 					}
-				} else if (olderPosts[0].id > last(this.posts).id) {
+				} else if (olderPosts[0].id < last(this.posts).id) { // no duplication.
 					this.loadWithSinceId(olderPosts[0].id, posts ? olderPosts.concat(posts): olderPosts);
-				} else {
+				} else {	// some posts are duplicated
 					olderPosts.filter(e => e.id < last(this.posts).id).forEach(e => this.posts.push(e));
 					if (posts) {
 						posts.forEach(e => this.posts.push(e));
