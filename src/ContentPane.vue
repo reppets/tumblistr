@@ -1,18 +1,10 @@
 <template>
 	<div class="pane">
-		<div class="v-scroll list-pane" v-handled-element:list @scroll="triggerLoad" v-resize="triggerLoad">
-			  <div class="wrapper">
-					<ul class="list">
-						<PostCell v-for="(post,index) in posts" :key="post.id" @select="select(post, index)" :post="post"></PostCell>
-					</ul>
-				</div>
-		</div>
-		<div class="splitter"></div>
 		<div class="detail">
 			<div class="main-content">
 				<template v-if="selectedPost">
 					<div v-if="selectedPost.type==='text' && selectedPost.format==='html'" class="elevation-2 text-content" v-html="selectedPost.body"></div><!--TODO show title if present -->
-					<img v-if="selectedPost.type==='photo'" :src="selectedPost.photos[0].original_size.url">
+					<img v-if="selectedPost.type==='photo'" v-show-on-load="selectedPost.photos[selectedPost.selectedPhotoIndex].original_size.url">
 					<div v-if="selectedPost.type==='quote' && selectedPost.format==='html'" class="elevation-2 text-content">
 						<blockquote v-html="selectedPost.text"></blockquote>
 						<div class="source" v-html="selectedPost.source"></div>
@@ -25,8 +17,17 @@
 					<div v-else-if="selectedPost.type==='video'" class="elevation-2" v-html="selectedPost.player[selectedPost.player.length-1].embed_code"></div>
 				</template>
 			</div>
-			<div class="sub-content">
+			<div class="sub-content" v-if="selectedPost && selectedPost.type==='photo' && selectedPost.photos.length > 1">
+				<img v-for="(photo, index) in selectedPost.photos" :key="index + photo.original_size.url" v-show-on-load="photo.alt_sizes[photo.alt_sizes.length-2].url" @click="selectedPost.selectedPhotoIndex = index" :class="{selected: selectedPost.selectedPhotoIndex===index}">
 			</div>
+		</div>
+		<div class="splitter"></div>
+		<div class="v-scroll list-pane" v-handled-element:list @scroll="triggerLoad" v-resize="triggerLoad">
+			  <div class="wrapper">
+					<ul class="list">
+						<PostCell v-for="(post,index) in posts" :key="post.id" @select="select(post, index)" :post="post"></PostCell>
+					</ul>
+				</div>
 		</div>
 	</div>
 </template>
@@ -43,15 +44,6 @@ export default {
   },
   props: {
     args: Object
-	},
-	directives: {
-		'scroll-to-me': {
-			componentUpdated: function(el, binding) {
-				if (!binding.oldValue && binding.value) {
-					el.scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'nearest'});
-				}
-			}
-		}
 	},
   data: function() {
     return {
@@ -85,6 +77,9 @@ export default {
 			this.selectedPost = post;
 			this.selectedIndex = index;
 			Vue.set(post, 'selected', true);
+			if (post.type==='photo') {
+				Vue.set(post, 'selectedPhotoIndex', 0);
+			}
     }
   }
   
@@ -125,7 +120,7 @@ export default {
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		padding: 10px;
+		padding: 25px;
 		> img {
 			display: block;
 			max-width: 100%;
@@ -144,6 +139,26 @@ export default {
 	}
 	.sub-content {
 		flex: 0 1 auto;
+		display: flex;
+		flex-direction: column;
+		flex-wrap: nowrap;
+		justify-content: flex-start;
+		align-items: center;
+		height: 100%;
+		padding-top: 15px;
+		padding-bottom: 15px;
+		img {
+			flex: 0 1 auto;
+			object-fit: contain;
+			min-width: 15px;
+			min-height: 15px;
+			max-width: 100px;
+			margin: 5px 5px 5px 15px;
+			filter: drop-shadow(1px 3px 1px rgba(0,0,0,0.16)) drop-shadow(3px 2px 3px rgba(0,0,0,0.1));
+			&.selected {
+				margin: 5px 20px 5px 0px;
+			}
+		}
 	}
 }
 

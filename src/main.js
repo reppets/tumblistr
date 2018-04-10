@@ -124,6 +124,23 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 		}
 	});
 
+	Vue.directive('show-on-load', {
+		bind: function(el, binding) {
+				el.src = binding.value;
+		},
+		update: function(el, binding, vnode, oldVnode) {
+				if (binding.value === binding.oldValue) {
+						return;
+				}
+				let src = binding.value;
+				el.style.display = 'none';
+				el.onload = (ev) => {
+						el.style.display="";
+				}
+				el.src = src;
+			}
+	});
+
 let vm = new Vue({
 	el: '#root',
 	template: '<Layout v-bind="props" v-on:update="update"/>',

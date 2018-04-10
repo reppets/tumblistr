@@ -12,6 +12,7 @@
 			</div>
 			<div v-else-if="post.type==='answer'"><TypeIcon :type="post.type" />{{post.summary}}</div>
 			<div v-if="post.type==='video'" class="cell-overlay"><TypeIcon :type="post.type" /></div>
+			<div v-if="post.type==='photo' && post.photos.length > 1" class="cell-overlay"><v-icon small>collections</v-icon></div>
 		</div>
 	</li>
 </template>
