@@ -1,17 +1,19 @@
 <template>
-	<div :class="cellClass" v-scroll-to-me="post.selected">
-		<div v-if="post.type==='text'">{{post.summary}}</div>
-		<img v-else-if="post.type==='photo'" :src="thumbnailUrl">
-		<div v-else-if="post.type==='quote'"><TypeIcon :type="post.type" />{{post.summary}}</div>
-		<div v-else-if="post.type==='link'"><TypeIcon :type="post.type" />{{post.summary}}</div>
-		<div v-else-if="post.type==='chat'"><TypeIcon :type="post.type" />{{post.summary}}</div>
-		<div v-else-if="post.type==='audio'"><TypeIcon :type="post.type" />{{post.summary}}</div>
-		<div v-else-if="post.type==='video'" class="thumbnail">
-			<img :src="post.thumbnail_url" :class="thumbnailClass">
+	<li :class="itemClass" @click="select">
+		<div :class="cellClass" v-scroll-to-me="post.selected">
+			<div v-if="post.type==='text'">{{post.summary}}</div>
+			<img v-else-if="post.type==='photo'" :src="thumbnailUrl">
+			<div v-else-if="post.type==='quote'"><TypeIcon :type="post.type" />{{post.summary}}</div>
+			<div v-else-if="post.type==='link'"><TypeIcon :type="post.type" />{{post.summary}}</div>
+			<div v-else-if="post.type==='chat'"><TypeIcon :type="post.type" />{{post.summary}}</div>
+			<div v-else-if="post.type==='audio'"><TypeIcon :type="post.type" />{{post.summary}}</div>
+			<div v-else-if="post.type==='video'" class="thumbnail">
+				<img :src="post.thumbnail_url" :class="thumbnailClass">
+			</div>
+			<div v-else-if="post.type==='answer'"><TypeIcon :type="post.type" />{{post.summary}}</div>
+			<div v-if="post.type==='video'" class="cell-overlay"><TypeIcon :type="post.type" /></div>
 		</div>
-		<div v-else-if="post.type==='answer'"><TypeIcon :type="post.type" />{{post.summary}}</div>
-		<div v-if="post.type==='video'" class="cell-overlay"><TypeIcon :type="post.type" /></div>
-	</div>
+	</li>
 </template>
 
 <script>
@@ -43,6 +45,14 @@ export default {
 		},
 		cellClass: function() {
 			return ['cell', this.post.selected ? 'elevation-8': 'elevation-2'];
+		},
+		itemClass: function() {
+			return this.post.selected ? 'selected': null;
+		}
+	},
+	methods: {
+		select: function() {
+			this.$emit('select');
 		}
 	}
 }

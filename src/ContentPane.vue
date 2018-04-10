@@ -3,9 +3,7 @@
 		<div class="v-scroll list-pane" v-handled-element:list @scroll="triggerLoad" v-resize="triggerLoad">
 			  <div class="wrapper">
 					<ul class="list">
-						<li v-for="(post,index) in posts" :key="post.id"  @click="select(post, index)" :class="{'selected': post.selected}">
-							<PostCell :post="post"></PostCell>
-						</li>
+						<PostCell v-for="(post,index) in posts" :key="post.id" @select="select(post, index)" :post="post"></PostCell>
 					</ul>
 				</div>
 		</div>
