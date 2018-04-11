@@ -9,7 +9,6 @@
 // @require https://greasyfork.org/scripts/29810-tumblr-lib-gm/code/tumblr-lib-gm.js?version=211271
 // @require https://unpkg.com/vue
 // @require https://unpkg.com/vuetify/dist/vuetify.js
-// @require https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js
 // @grant GM_xmlhttpRequest
 // @grant GM_deleteValue
 // @grant GM_getValue
