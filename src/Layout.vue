@@ -18,12 +18,12 @@
       <AccountMenu id="account-menu" :userData="userData"/>
     </div>
     <div id="content-area">
-      <v-tabs-items v-model="activeTab" class="tab-content">
+      <v-tabs-items v-model="activeTab" class="tab-content" @input="selectTab">
 
         <v-tab-item v-for="tab in tabs" :key="tab.key" :transition="false" :reverse-transition="false" style="max-height:100%; height:100%">
-          <DashboardPane v-if="tab.type==='dashboard'" :args="tab.args"></DashboardPane>
-          <LikesPane v-else-if="tab.type==='likes'"></LikesPane>
-          <BlogPane v-else-if="tab.type==='blog'" :args="tab.args"></BlogPane>
+          <DashboardPane v-if="tab.type==='dashboard'" :args="tab.args" :active="tab.isActive"></DashboardPane>
+          <LikesPane v-else-if="tab.type==='likes'" :active="tab.isActive"></LikesPane>
+          <BlogPane v-else-if="tab.type==='blog'" :args="tab.args" :active="tab.isActive"></BlogPane>
         </v-tab-item>
 
         <v-tab-item class="opener-tab v-scroll" :transition="false" :reverse-transition="false">
@@ -126,7 +126,8 @@ export default {
       this.tabs.push({
         type: type,
         args: args,
-        key: key(type, args)
+        key: key(type, args),
+        isActive: true
       });
       this.activeTab = (this.tabs.length).toString();
     },
@@ -135,6 +136,13 @@ export default {
     },
     openAuthPage: function() {
       Context.eventBus.$emit('authorize');
+    },
+    selectTab: function(index) { // type of index is supposed to be a string;
+      this.tabs.filter(e=>e.isActive).forEach(e=>e.isActive=false);
+      let n = parseInt(index) - 1;
+      if (n >= 0) {
+        this.tabs[n].isActive = true;
+      }
     },
     log: function(print) {
       console.log(print);

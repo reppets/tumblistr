@@ -3,6 +3,7 @@ import { isValidCallback, setTokenToOpener, tokenObserver } from './token.js';
 import { splitParameter } from './utils.js';
 import { Context } from './context.js';
 import { Stored } from './stored.js';
+import bindKeys from './keybind';
 
 const TOKEN_OBSERVER_ID = '#tokenObserver';
 const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=true';
@@ -141,23 +142,25 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 			}
 	});
 
-let vm = new Vue({
-	el: '#root',
-	template: '<Layout v-bind="props" v-on:update="update"/>',
-	components: { Layout },
-	data: data,
-	methods: {
-		update: function (type, value) {
-			if (type = "consumerTokenSet") {
-				Stored.consumerToken = { token: value.consumerToken, secret: value.consumerSecret };
-				this.props.authStage = 'consumer-token-set';
-				Context.client = new Tumblr(value.consumerToken, value.consumerSecret);
-				this.authorize();
-			}
-		},
-		authorize: authorize
-	}
-});
+	bindKeys();
+
+	let vm = new Vue({
+		el: '#root',
+		template: '<Layout v-bind="props" v-on:update="update"/>',
+		components: { Layout },
+		data: data,
+		methods: {
+			update: function (type, value) {
+				if (type = "consumerTokenSet") {
+					Stored.consumerToken = { token: value.consumerToken, secret: value.consumerSecret };
+					this.props.authStage = 'consumer-token-set';
+					Context.client = new Tumblr(value.consumerToken, value.consumerSecret);
+					this.authorize();
+				}
+			},
+			authorize: authorize
+		}
+	});
 
 
 }) ();

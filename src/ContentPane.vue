@@ -43,7 +43,8 @@ export default {
     TypeIcon, PostCell
   },
   props: {
-    args: Object
+		args: Object,
+		active: Boolean
 	},
   data: function() {
     return {
@@ -57,6 +58,24 @@ export default {
     };
   },
   mounted: function() {
+		Context.eventBus.$on('select-next', ()=> {
+			if (this.active && this.posts.length>0) {
+				if (this.selectedIndex == null) {
+					this.select(this.posts[0], 0);
+				} else if (this.selectedIndex < this.posts.length-1) {
+					this.select(this.posts[this.selectedIndex+1], this.selectedIndex+1); 
+				}
+			}
+		});
+		Context.eventBus.$on('select-prev', ()=> {
+			if (this.active && this.posts.length>0) {
+				if (this.selectedIndex != null && this.selectedIndex > 0) {
+					this.select(this.posts[this.selectedIndex-1], this.selectedIndex-1);
+				} else {
+					this.select(this.posts[0], 0);
+				}
+			}
+		});
     this.triggerLoad();
   },
   methods: {
@@ -77,7 +96,7 @@ export default {
 			this.selectedPost = post;
 			this.selectedIndex = index;
 			Vue.set(post, 'selected', true);
-			if (post.type==='photo') {
+			if (post.type==='photo' && post.selectedPhotoIndex ==  null) {
 				Vue.set(post, 'selectedPhotoIndex', 0);
 			}
     }
