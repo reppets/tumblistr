@@ -105,9 +105,9 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 	});
 
 	Context.eventBus.$on('set-consumer-token', function (token) {
-		Stored.consumerToken = { token: value.consumerToken, secret: value.consumerSecret };
-		this.props.authStage = 'consumer-token-set';
-		Context.client = new Tumblr(value.consumerToken, value.consumerSecret);
+		Stored.consumerToken = { token: token.consumerToken, secret: token.consumerSecret };
+		data.props.authStage = 'consumer-token-set';
+		Context.client = new Tumblr(token.consumerToken, token.consumerSecret);
 		this.authorize();
 	});
 
