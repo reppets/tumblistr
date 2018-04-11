@@ -10,7 +10,7 @@
             <v-icon>favorite</v-icon>Likes
           </span>
           <span v-else-if="tab.type==='blog'" class="tab-label">
-            <img :src="avatarUrl(tab.args.blogName, 24)">{{ tab.args.blogName }}<TypeIcon v-if="tab.args.filter" :type="tab.args.filter"/>
+            <img :src="avatarUrl(tab.args.blogName, 24)" width="24" height="24">{{ tab.args.blogName }}<TypeIcon v-if="tab.args.filter" :type="tab.args.filter"/>
           </span>
         </v-tab>
         <v-tab><v-icon>add</v-icon></v-tab>

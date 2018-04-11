@@ -24,7 +24,7 @@
 		<div class="splitter"></div>
 		<div class="v-scroll list-pane" v-handled-element:list @scroll="triggerLoad" v-resize="triggerLoad">
 			  <div class="wrapper">
-					<ul class="list">
+					<ul class="list-area">
 						<PostCell v-for="(post,index) in posts" :key="post.id" @select="select(post, index)" :post="post"></PostCell>
 					</ul>
 				</div>
@@ -139,7 +139,7 @@ export default {
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		padding: 25px;
+		padding: 15px;
 		> img {
 			display: block;
 			max-width: 100%;
@@ -148,6 +148,7 @@ export default {
 			object-fit: contain;
 		}
 		> .text-content {
+			margin: 10px;
 			overflow-y: auto;
 			max-width: 100%;
 			max-height: 100%;
@@ -172,10 +173,10 @@ export default {
 			min-width: 15px;
 			min-height: 15px;
 			max-width: 100px;
-			margin: 5px 5px 5px 15px;
-			filter: drop-shadow(1px 3px 1px rgba(0,0,0,0.16)) drop-shadow(3px 2px 3px rgba(0,0,0,0.1));
+			margin: 3px 5px 3px 5px;
+			filter: drop-shadow(1px 2px 1px rgba(0,0,0,0.16)) drop-shadow(3px 2px 3px rgba(0,0,0,0.1));
 			&.selected {
-				margin: 5px 20px 5px 0px;
+				margin: 3px 20px 3px -10px;
 			}
 		}
 	}
@@ -185,7 +186,7 @@ export default {
   width: 100%;
   overflow-y: auto;
 }
-.list {
+.list-area {
   width: 100%;
   max-width: 100%;
   line-height: 0;
