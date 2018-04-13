@@ -60,6 +60,13 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 			onload: function (response) {
 				if (response.status === 200) {
 					data.props.userData = response.response.response.user;
+					if (Stored.reblogTarget) {
+						data.props.reblogTarget = Stored.reblogTarget;
+					} else {
+						let reblogTarget = data.props.userData.blogs.find(e=>e.primary);
+						Stored.reblogTarget = reblogTarget;
+						data.props.reblogTarget = reblogTarget;
+					}
 				}
 			}
 		});
@@ -72,6 +79,7 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 			authStage: 'consumer-token-unset',
 			authorizing: false,
 			userData: null,
+			reblogTarget: null,
 			tabs: []
 		}
 	}
@@ -94,7 +102,6 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 	keyListener.register_combo({
 		keys: 'o',
 		on_keyup: function () {
-			console.log('o pushed');
 			Context.eventBus.$emit('show-tab-opener');
 		}
 	})
@@ -114,6 +121,11 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 
 	Context.eventBus.$on('authorize', function () {
 		authorize();
+	});
+
+	Context.eventBus.$on('set-reblog-target', function (blog) {
+		data.props.reblogTarget = blog;
+		Stored.reblogTarget = blog;
 	});
 
 	Vue.directive('handled-element',{

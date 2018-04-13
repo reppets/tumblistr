@@ -1,6 +1,24 @@
 <template>
-  <v-app><v-content><v-container fluid fill-height pa-0><v-layout column>
-    <div id="header-area" style="max-width:100vw">
+  <v-app>
+    <v-navigation-drawer app mini-variant dark mini-variant-width="40" style="display: flex; flex-direction: column; align-items: center;">
+      <v-btn flat icon color="white"><v-avatar v-if="userData" size="28px" class="grey darken-3"><img :src="userAvatarUrl"></v-avatar></v-btn>
+      <hr style="width: 80%; height:1px; background-color:rgba(255,255,255,0.3); border: 0;" />
+      <v-menu v-if="userData">
+        <v-btn slot="activator" flat icon color="white"><!-- TODO: border-radius styling -->
+          <v-avatar v-if="userData" size="28px" tile class="grey darken-3"><img :src="reblogAvatarUrl"  style="border-radius: 20%;"></v-avatar>
+          <v-icon small style="position: absolute; bottom: 0; right: 0;" class="c-reblog">repeat</v-icon>
+        </v-btn>
+        <v-list>
+          <v-subheader>Reblog to</v-subheader>
+          <v-list-tile  v-for="blog in userData.blogs" :key="blog.name" @click="setReblogTarget(blog)" avatar>
+            <v-list-tile-avatar><img :src="avatarUrl(blog.name, 32)"></v-list-tile-avatar>
+            <v-list-tile-title>{{blog.name}}</v-list-tile-title>
+          </v-list-tile>
+        </v-list>
+      </v-menu>
+    </v-navigation-drawer>
+    <v-content><v-container fluid fill-height pa-0><v-layout column>
+    <div id="header-area" style="max-width:calc(100vw - 40px);">
       <v-tabs id="tab-bar" v-model="activeTab" show-arrows>
         <v-tab v-for="tab in tabs" :key="tab.key">
           <span v-if="tab.type==='dashboard'" class="tab-label">
@@ -15,7 +33,7 @@
         </v-tab>
         <v-tab><v-icon>add</v-icon></v-tab>
       </v-tabs>
-      <AccountMenu id="account-menu" :userData="userData"/>
+      <!--<AccountMenu id="account-menu" :userData="userData"/>-->
     </div>
     <div id="content-area">
       <v-tabs-items v-model="activeTab" class="tab-content" @input="selectTab">
@@ -81,6 +99,7 @@
 
 <script>
 import {Context} from "./context.js";
+import {Stored} from "./stored.js";
 import AccountMenu from "./AccountMenu.vue";
 import TypeIcon from "./TypeIcon.vue";
 import DashboardPane from "./DashboardPane.vue";
@@ -108,10 +127,19 @@ export default {
   props : {
     authStage: String,
     userData: Object,
+    reblogTarget: Object,
     authorizing: Boolean
   },
   components: {
     AccountMenu, TypeIcon, DashboardPane, LikesPane, BlogPane
+  },
+  computed: {
+    userAvatarUrl: function() {
+      return Context.client.getAvatarURL(this.userData.name + '.tumblr.com', 32);
+    },
+    reblogAvatarUrl: function() {
+      return Context.client.getAvatarURL(this.reblogTarget.name + '.tumblr.com', 32);
+    }
   },
   methods: {
     setConsumerToken: function() {
@@ -143,6 +171,9 @@ export default {
       if (n >= 0) {
         this.tabs[n].isActive = true;
       }
+    },
+    setReblogTarget: function(blog) {
+      Context.eventBus.$emit('set-reblog-target', blog);
     },
     log: function(print) {
       console.log(print);
@@ -259,6 +290,9 @@ html {
 
 .c-answer {
   color: #774c21 !important; }
+
+.c-reblog {
+  color: #56bc8a !important; }
 </style>
 
 
