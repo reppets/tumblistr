@@ -1,7 +1,21 @@
 <template>
   <v-app>
     <v-navigation-drawer app mini-variant dark mini-variant-width="40" style="display: flex; flex-direction: column; align-items: center;">
-      <v-btn flat icon color="white"><v-avatar v-if="userData" size="28px" class="grey darken-3"><img :src="userAvatarUrl"></v-avatar></v-btn>
+      <v-menu v-if="userData">
+        <v-btn slot="activator" flat icon color="white"><v-avatar v-if="userData" size="28px" class="grey darken-3"><img :src="userAvatarUrl"></v-avatar></v-btn>
+        <v-list>
+          <v-subheader>Accounts</v-subheader>
+          <v-list-tile avatar>
+            <v-list-tile-avatar><img :src="avatarUrl(userData.name)"></v-list-tile-avatar>
+            <v-list-tile-title>{{userData.name}}</v-list-tile-title>
+          </v-list-tile>
+          <v-divider/>
+          <v-list-tile :key="add-account" @click="addAccount">
+            <v-list-tile-title><v-icon>add</v-icon>Add Account</v-list-tile-title>
+          </v-list-tile>
+
+        </v-list>
+      </v-menu>
       <hr style="width: 80%; height:1px; background-color:rgba(255,255,255,0.3); border: 0;" />
       <v-menu v-if="userData">
         <v-btn slot="activator" flat icon color="white"><!-- TODO: border-radius styling -->
@@ -174,6 +188,9 @@ export default {
     },
     setReblogTarget: function(blog) {
       Context.eventBus.$emit('set-reblog-target', blog);
+    },
+    addAccount: function() {
+      // TODO implement this.
     },
     log: function(print) {
       console.log(print);
