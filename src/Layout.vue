@@ -6,7 +6,7 @@
       <v-menu v-if="userData">
         <v-btn slot="activator" flat icon color="white"><!-- TODO: border-radius styling -->
           <v-avatar v-if="userData" size="28px" tile class="grey darken-3"><img :src="reblogAvatarUrl"  style="border-radius: 20%;"></v-avatar>
-          <v-icon small style="position: absolute; bottom: 0; right: 0;" class="c-reblog">repeat</v-icon>
+          <v-icon small style="position: absolute; bottom: 0; right: 0;font-weight:bold;" class="c-reblog">repeat</v-icon>
         </v-btn>
         <v-list>
           <v-subheader>Reblog to</v-subheader>
