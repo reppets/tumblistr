@@ -24,7 +24,7 @@ export default {
     },
     computed: {
         avatarUrl: function() {
-            return this.userData ? Context.client.getAvatarURL(this.userData.name + '.tumblr.com', 40) : '';
+            return this.userData ? Context.client.getAvatarURL(this.userData.name, 40) : '';
         }
 		},
 		methods: {

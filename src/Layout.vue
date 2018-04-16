@@ -149,15 +149,15 @@ export default {
   },
   computed: {
     userAvatarUrl: function() {
-      return Context.client.getAvatarURL(this.userData.name + '.tumblr.com', 32);
+      return Context.client.getAvatarURL(this.userData.name, 32);
     },
     reblogAvatarUrl: function() {
-      return Context.client.getAvatarURL(this.reblogTarget.name + '.tumblr.com', 32);
+      return Context.client.getAvatarURL(this.reblogTarget.name, 32);
     }
   },
   methods: {
     setConsumerToken: function() {
-      Context.eventBus.$emit('set-consumer-token', {consumerToken: this.consumerToken, consumerSecret: this.consumerSecret});
+      Context.eventBus.$emit('set-consumer-token', {key: this.consumerToken, secret: this.consumerSecret});
     },
     open: function(type, args) {
       let idx = this.tabs.findIndex(e=>e.key===key(type, args));
@@ -174,7 +174,7 @@ export default {
       this.activeTab = (this.tabs.length).toString();
     },
     avatarUrl: function(blogName, size) {
-      return Context.client.getAvatarURL(blogName+".tumblr.com", size);
+      return Context.client.getAvatarURL(blogName, size);
     },
     openAuthPage: function() {
       Context.eventBus.$emit('authorize');

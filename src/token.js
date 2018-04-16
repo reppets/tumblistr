@@ -19,7 +19,9 @@ function tokenObserver(oauthToken, oauthTokenSecret, client, tokenSetter) {
             for (var node of mr.addedNodes) {
                 if (node.attributes.getNamedItem('name').value === oauthToken) {
                     var oauthVerifier = node.attributes.getNamedItem('value').value;
-                    client.getAccessToken(oauthToken, oauthTokenSecret, oauthVerifier, {
+                    client.getAccessToken({
+                        token: {key:oauthToken, secret:oauthTokenSecret},
+                        oauth_verifier: oauthVerifier,
                         onload: function (response) {
                             var params = splitParameter(response.responseText);
                             tokenSetter(params.oauth_token, params.oauth_token_secret);
