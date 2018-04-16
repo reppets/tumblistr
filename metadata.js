@@ -15,5 +15,3 @@
 // @grant GM_listValues
 // @grant GM_setValue
 // ==/UserScript==
-
-// @require https://greasyfork.org/scripts/29810-tumblr-lib-gm/code/tumblr-lib-gm.js?version=211271
