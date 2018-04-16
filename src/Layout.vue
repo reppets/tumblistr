@@ -10,7 +10,7 @@
             <v-list-tile-title>{{userData.name}}</v-list-tile-title>
           </v-list-tile>
           <v-divider/>
-          <v-list-tile :key="add-account" @click="addAccount">
+          <v-list-tile key="add-account" @click="addAccount">
             <v-list-tile-title><v-icon>add</v-icon>Add Account</v-list-tile-title>
           </v-list-tile>
 
