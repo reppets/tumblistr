@@ -6,7 +6,7 @@
 // @include *://reppets.net/tumblistr/*/tumblistr.html*
 // @require https://cdn.rawgit.com/ddo/oauth-1.0a/91557b7ef8c38dad6a22f9471a5d0dc216a1afd4/oauth-1.0a.js
 // @require https://cdn.rawgit.com/dmauro/Keypress/2.1.3/keypress-2.1.3.min.js
-// @require https://github.com/reppets/tumblr-lib-gm/raw/v2/tumblr.user.js
+// @require https://github.com/reppets/tumblr-lib-gm/raw/master/tumblr.user.js
 // @require https://unpkg.com/vue
 // @require https://unpkg.com/vuetify/dist/vuetify.js
 // @grant GM_xmlhttpRequest

@@ -89,12 +89,12 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 	if (consumerToken) {
 		if (userToken) {
 			data.props.authStage = 'user-token-set';
-			Context.client = new Tumblr(consumerToken);
+			Context.client = new Tumblr(consumerToken, Tumblr.LOG_DEBUG);
 			Context.client.setToken(userToken);
 			fetchUserData();
 		} else {
 			data.props.authStage = 'user-token-unset';
-			Context.client = new Tumblr(consumerToken);
+			Context.client = new Tumblr(consumerToken, Tumblr.LOG_DEBUG);
 		}
 	}
 
@@ -117,7 +117,7 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 	Context.eventBus.$on('set-consumer-token', function (token) {
 		Stored.consumerToken = token;
 		data.props.authStage = 'consumer-token-set';
-		Context.client = new Tumblr(token);
+		Context.client = new Tumblr(token, Tumblr.LOG_DEBUG);
 		this.authorize();
 	});
 
@@ -157,7 +157,7 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 	});
 
 	bindKeys();
-
+	
 	let vm = new Vue({
 		el: '#root',
 		template: '<Layout v-bind="props" v-on:update="update"/>',
@@ -169,7 +169,7 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 					let token = {key: value.consumerToken, secret: value.consumerSecret};
 					Stored.consumerToken = token;
 					this.props.authStage = 'consumer-token-set';
-					Context.client = new Tumblr(token);
+					Context.client = new Tumblr(token, Tumblr.LOG_DEBUG);
 					this.authorize();
 				}
 			},
