@@ -16,7 +16,6 @@ export default {
 					notes_info: false,
 					onload: (response) => {
 						let olderPosts = response.response.response.posts;
-						console.log(olderPosts);
 						let postsToAdd = olderPosts.filter(p => this.posts.length === 0 || p.id < last(this.posts).id);
 						postsToAdd.forEach(p => this.posts.push(p));
 						this.offset+=(olderPosts.length-postsToAdd.length)+olderPosts.length;
