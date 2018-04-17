@@ -155,20 +155,10 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 	
 	let vm = new Vue({
 		el: '#root',
-		template: '<Layout v-bind="props" v-on:update="update"/>',
+		template: '<Layout v-bind="props"/>',
 		components: { Layout },
 		data: data,
 		methods: {
-			update: function (type, value) {
-				console.log('update called');
-				if (type = "consumerTokenSet") {
-					let token = {key: value.consumerToken, secret: value.consumerSecret};
-					Stored.consumerToken = token;
-					this.props.authStage = 'consumer-token-set';
-					Context.client = new Tumblr(token, Tumblr.LOG_DEBUG);
-					this.authorize();
-				}
-			},
 			authorize: authorize
 		}
 	});
