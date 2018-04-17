@@ -33,71 +33,6 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 		document.head.appendChild(style);
 	})();
 
-	function authorize() {
-		data.props.authorizing = true;
-		Context.client.getRequestToken({
-			oauth_callback: CALLBACK_URL,
-			onload: function (response) {
-				if (response.status === 200) {
-					let params = splitParameter(response.responseText);
-					new MutationObserver(tokenObserver(params.oauth_token, params.oauth_token_secret, Context.client, function (key, secret) {
-						let token = { key: key, secret: secret };
-						Stored.userToken = token
-						Context.client.setToken(token);
-						data.props.authStage = 'user-token-set';
-						data.props.authorizing = false;
-						fetchUserData();
-					})).observe(document.querySelector(TOKEN_OBSERVER_ID), { childList: true });
-					window.open(Context.client.getAuthorizeURL(params.oauth_token), '_blank');
-				} else if (response.status === 401) {
-					Stored.consumerToken = null;
-					data.props.authStage = 'consumer-token-unset';
-				}
-			}
-		});
-	}
-
-	function fetchUserData() {
-		Context.client.getUserInfo({
-			onload: function (response) {
-				if (response.status === 200) {
-					data.props.userData = response.response.response.user;
-					if (Stored.reblogTarget) {
-						data.props.reblogTarget = Stored.reblogTarget;
-					} else {
-						let reblogTarget = data.props.userData.blogs.find(e=>e.primary);
-						Stored.reblogTarget = reblogTarget;
-						data.props.reblogTarget = reblogTarget;
-					}
-				}
-			}
-		});
-	}
-
-	let consumerToken = Stored.consumerToken;
-	let userToken = Stored.userToken;
-	let data = {
-		props: {
-			authStage: 'consumer-token-unset',
-			authorizing: false,
-			userData: null,
-			reblogTarget: null,
-			tabs: []
-		}
-	}
-
-	if (consumerToken) {
-		if (userToken) {
-			data.props.authStage = 'user-token-set';
-			Context.client = new Tumblr(consumerToken, Tumblr.LOG_DEBUG);
-			Context.client.setToken(userToken);
-			fetchUserData();
-		} else {
-			data.props.authStage = 'user-token-unset';
-			Context.client = new Tumblr(consumerToken, Tumblr.LOG_DEBUG);
-		}
-	}
-
 	// Global Event Listeners ----------------------------------------------------------------------------
 	Context.eventBus = new Vue();
 
@@ -105,22 +40,6 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 		Stored.userToken = null;
 		data.props.userData = null;
 		data.props.authStage = 'user-token-unset';
-	});
-
-	Context.eventBus.$on('set-consumer-token', function (token) {
-		Stored.consumerToken = token;
-		data.props.authStage = 'consumer-token-set';
-		Context.client = new Tumblr(token, Tumblr.LOG_DEBUG);
-		authorize();
-	});
-
-	Context.eventBus.$on('authorize', function () {
-		authorize();
-	});
-
-	Context.eventBus.$on('set-reblog-target', function (blog) {
-		data.props.reblogTarget = blog;
-		Stored.reblogTarget = blog;
 	});
 
 	Context.eventBus.$on('reset-store', function() {
@@ -157,11 +76,127 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 		el: '#root',
 		template: '<Layout v-bind="props"/>',
 		components: { Layout },
-		data: data,
+		data: {
+			props: {
+				consumerToken: null,
+				accounts: [],
+				currentAccount: null,
+				authorizing: false,
+				addNewAccount: false
+			}
+		},
 		methods: {
-			authorize: authorize
+			authorize: function() {
+				this.props.authorizing = true;
+				Context.client.getRequestToken({
+					oauth_callback: CALLBACK_URL,
+					onload: (response) => {
+						if (response.status === 200) {
+							// after obtaining the request token, set the observer and open the authorization page.
+							let params = splitParameter(response.responseText);
+							new MutationObserver(tokenObserver(params.oauth_token, params.oauth_token_secret, Context.client, this.newAccessToken))
+								.observe(document.querySelector(TOKEN_OBSERVER_ID),{ childList: true });
+							window.open(Context.client.getAuthorizeURL(params.oauth_token), '_blank');
+						} else if (response.status === 401) {
+							Stored.consumerToken = null;
+							// TODO show error message.
+						}
+					}
+				});
+			},
+			newAccessToken: function(key, secret) {
+				console.log('newAccessToken');
+				let token = {key: key, secret: secret};
+				Context.client.getUserInfo({
+					token: token,
+					onload: (response) => {
+						console.log('userinfo', response);
+						if (response.status === 200) {
+							let userInfo = response.response.response.user;
+							let existing = this.props.accounts.find(e=>e.userInfo.name === userInfo.name);
+							if (existing) {
+								existing.token = token;
+								existing.userInfo = userInfo;
+								if (userInfo.blogs.find(e=>e.name === existing.reblogTarget) == null) {
+									existing.reblogTarget = userInfo.blogs.find(e=>e.primary);
+								}
+							} else {
+								console.log('expected');
+								let current = this.props.accounts.find(e=>e.current);
+								if (current) current.current = false;
+								this.props.currentAccount = {
+									token: token,
+									userInfo: userInfo,
+									reblogTarget: userInfo.blogs.find(e=>e.primary),
+									current: true
+								};
+								this.props.accounts.push(this.props.currentAccount);
+							}
+						} // TODO error handling
+						this.props.authorizing = false;
+						this.props.addNewAccount = false;
+					}
+				})
+			}
+		},
+		watch: {
+			'props.consumerToken': function(newToken, oldToken) {
+				console.log('consumerToken changed', newToken, oldToken);
+				Stored.consumerToken = newToken;
+				if (newToken==null) {
+					// when deleting token
+					Context.client = null;
+				} else {
+					Context.client = new Tumblr(newToken);
+				}
+				// TODO reset everything
+			},
+			'props.currentAccount': function(newAccount) {
+				console.log('currentAccount changed');
+				Context.client.setToken(newAccount.token);
+			},
+			'props.accounts': {
+				handler: function(newAccounts) {
+					console.log('accounts changed');
+					Stored.accounts = newAccounts;
+				},
+				deep: true
+			}
+		},
+		beforeCreate: function() {
+			let consumerToken = Stored.consumerToken;
+			if (consumerToken) {
+				Context.client = new Tumblr(consumerToken);
+			}
+		},
+		created: function() {
+			console.log('vm created');
+			this.props.consumerToken = Stored.consumerToken;
+			if (this.props.consumerToken) {
+				this.props.accounts = Stored.accounts;
+				if (this.props.accounts.length > 0) {
+					this.props.currentAccount = this.props.accounts.find(e=>e.current);
+				}
+			}
 		}
 	});
 
+	Context.eventBus.$on('set-consumer-token', function (token) {
+		vm.$data.props.consumerToken = token;	
+	});
+	Context.eventBus.$on('authorize', function () {
+		vm.authorize();
+	});
+	Context.eventBus.$on('set-reblog-target', function (blog) {
+		vm.$data.props.currentAccount.reblogTarget = blog;
+	});
+	Context.eventBus.$on('add-new-account', function() {
+		vm.$data.props.addNewAccount = true;
+	});
+	Context.eventBus.$on('select-account', function(account) {
+		vm.$data.props.accounts.find(e=>e.current).current = false;
+		account.current = true;
+		vm.$data.props.currentAccount = account;
+	});
 
 }) ();
