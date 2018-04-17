@@ -111,7 +111,7 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 		Stored.consumerToken = token;
 		data.props.authStage = 'consumer-token-set';
 		Context.client = new Tumblr(token, Tumblr.LOG_DEBUG);
-		this.authorize();
+		authorize();
 	});
 
 	Context.eventBus.$on('authorize', function () {
@@ -160,6 +160,7 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 		data: data,
 		methods: {
 			update: function (type, value) {
+				console.log('update called');
 				if (type = "consumerTokenSet") {
 					let token = {key: value.consumerToken, secret: value.consumerSecret};
 					Stored.consumerToken = token;
