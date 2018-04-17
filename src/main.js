@@ -100,13 +100,6 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 
 	// Global Event Listeners ----------------------------------------------------------------------------
 	Context.eventBus = new Vue();
-	let keyListener = new window.keypress.Listener();
-	keyListener.register_combo({
-		keys: 'o',
-		on_keyup: function () {
-			Context.eventBus.$emit('show-tab-opener');
-		}
-	})
 
 	Context.eventBus.$on('forget-account', function () {
 		Stored.userToken = null;

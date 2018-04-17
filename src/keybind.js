@@ -2,6 +2,7 @@ import {Context} from "./context";
 
 const NEXT_POST = 'right';
 const PREV_POST = 'left';
+const SHOW_OPENER = 'o';
 
 
 export default function bindKeys() {
@@ -10,7 +11,6 @@ export default function bindKeys() {
 	keyListener.register_combo({
 		keys: NEXT_POST,
 		on_keydown: function() {
-			console.log('key next');
 			Context.eventBus.$emit('select-next');
 		}
 	});
@@ -19,5 +19,12 @@ export default function bindKeys() {
 		on_keydown: function() {
 			Context.eventBus.$emit('select-prev');
 		}
+	});
+	keyListener.register_combo({
+		keys: SHOW_OPENER,
+		on_keyup: function () {
+			Context.eventBus.$emit('show-tab-opener');
+		}
 	})
+
 };
