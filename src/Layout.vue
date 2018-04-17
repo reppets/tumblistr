@@ -13,6 +13,10 @@
           <v-list-tile key="add-account" @click="addAccount">
             <v-list-tile-title><v-icon>add</v-icon>Add Account</v-list-tile-title>
           </v-list-tile>
+          <v-divider/>
+          <v-list-tile key="reset-store" @click="emit('reset-store')"><!-- should go to under the setting icon -->
+            <v-list-tile-title>reset</v-list-tile-title>
+          </v-list-tile>
 
         </v-list>
       </v-menu>
@@ -191,6 +195,9 @@ export default {
     },
     addAccount: function() {
       // TODO implement this.
+    },
+    emit: function(event, ...args) { //TODO rename
+      Context.eventBus.$emit(event, ...args);
     },
     log: function(print) {
       console.log(print);

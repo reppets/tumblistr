@@ -20,5 +20,6 @@ export const Stored = {
     clear: function () {
         GM_deleteValue('consumer_token');
         GM_deleteValue('user_token');
+        GM_deleteValue('reblog_target');
     }
 };

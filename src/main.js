@@ -123,6 +123,10 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 		Stored.reblogTarget = blog;
 	});
 
+	Context.eventBus.$on('reset-store', function() {
+		Stored.clear();
+	});
+
 	Vue.directive('handled-element',{
 		bind: function(el, binding, vnode) {
 			if (!vnode.context.domElements) vnode.context.domElements = {};
