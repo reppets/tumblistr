@@ -7,6 +7,7 @@ export default {
 	extends: ContentPane,
   methods: {
 		load: function() {
+			if (this.noOlderPost) return;
 			Context.client.getPosts({
 				blogID: this.args.blogName,
 				type: this.args.filter,
