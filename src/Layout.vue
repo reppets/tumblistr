@@ -225,6 +225,14 @@ export default {
     currentAccount: function() {
       this.activeTab = "0";
       this.tabs = [];
+    },
+    activeTab: function(newValue, oldValue) {
+      if (oldValue !== "0") {
+        this.tabs[parseInt(oldValue) - 1].isActive = false;
+      }
+      if (newValue !== "0") {
+        this.tabs[parseInt(newValue) - 1].isActive = true;
+      }
     }
   },
   mounted: function() {
