@@ -7,7 +7,9 @@ export default {
 	extends: ContentPane,
   methods: {
 		load: function() {
-			if (this.noOlderPost) return;
+			if (this.noOlderPost) {
+				return;
+			}
 			Context.client.getPosts({
 				blogID: this.args.blogName,
 				type: this.args.filter,
@@ -22,7 +24,9 @@ export default {
 					this.offset+=(olderPosts.length-postsToAdd.length)+olderPosts.length;
 					this.noOlderPost = postsToAdd.length === 0;
 					this.loading = false;
-					this.$nextTick(()=> this.triggerLoad());
+					if (!this.noOlderPost) {
+						this.$nextTick(()=> this.triggerLoad());
+					}
 				}
 			});
 		}
