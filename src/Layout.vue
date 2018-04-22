@@ -125,7 +125,7 @@
 
 <script>
 import {Context} from "./context.js";
-import {Stored} from "./stored.js";
+import {Saved} from "./savedvalues.js";
 import AccountMenu from "./AccountMenu.vue";
 import TypeIcon from "./TypeIcon.vue";
 import DashboardPane from "./DashboardPane.vue";

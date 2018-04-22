@@ -1,4 +1,4 @@
-export const Stored = {
+export const Saved = {
     get consumerToken() {
         return GM_getValue('consumer_token', null);
     },

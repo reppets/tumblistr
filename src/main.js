@@ -2,7 +2,7 @@ import Layout from './Layout.vue';
 import { isValidCallback, setTokenToOpener, tokenObserver } from './token.js';
 import { splitParameter } from './utils.js';
 import { Context } from './context.js';
-import { Stored } from './stored.js';
+import { Saved } from './Saved.js';
 import bindKeys from './keybind';
 
 const TOKEN_OBSERVER_ID = '#tokenObserver';
@@ -37,13 +37,13 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 	Context.eventBus = new Vue();
 
 	Context.eventBus.$on('forget-account', function () {
-		Stored.userToken = null;
+		Saved.userToken = null;
 		data.props.userData = null;
 		data.props.authStage = 'user-token-unset';
 	});
 
 	Context.eventBus.$on('reset-store', function() {
-		Stored.clear();
+		Saved.clear();
 	});
 
 	Vue.directive('handled-element',{
@@ -98,7 +98,7 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 								.observe(document.querySelector(TOKEN_OBSERVER_ID),{ childList: true });
 							window.open(Context.client.getAuthorizeURL(params.oauth_token), '_blank');
 						} else if (response.status === 401) {
-							Stored.consumerToken = null;
+							Saved.consumerToken = null;
 							// TODO show error message.
 						}
 					}
@@ -142,7 +142,7 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 		watch: {
 			'props.consumerToken': function(newToken, oldToken) {
 				console.log('consumerToken changed', newToken, oldToken);
-				Stored.consumerToken = newToken;
+				Saved.consumerToken = newToken;
 				if (newToken==null) {
 					// when deleting token
 					Context.client = null;
@@ -158,22 +158,22 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 			'props.accounts': {
 				handler: function(newAccounts) {
 					console.log('accounts changed');
-					Stored.accounts = newAccounts;
+					Saved.accounts = newAccounts;
 				},
 				deep: true
 			}
 		},
 		beforeCreate: function() {
-			let consumerToken = Stored.consumerToken;
+			let consumerToken = Saved.consumerToken;
 			if (consumerToken) {
 				Context.client = new Tumblr(consumerToken);
 			}
 		},
 		created: function() {
 			console.log('vm created');
-			this.props.consumerToken = Stored.consumerToken;
+			this.props.consumerToken = Saved.consumerToken;
 			if (this.props.consumerToken) {
-				this.props.accounts = Stored.accounts;
+				this.props.accounts = Saved.accounts;
 				if (this.props.accounts.length > 0) {
 					this.props.currentAccount = this.props.accounts.find(e=>e.current);
 				}
