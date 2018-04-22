@@ -11,22 +11,10 @@ export const Saved = {
     set accounts(value) {
         GM_setValue('accounts', value);
     },
-    get userToken() {
-        return GM_getValue('user_token', null);
-    },
-    set userToken(value) {
-        GM_setValue('user_token', value);
-    },
-    get reblogTarget() {
-        return GM_getValue('reblog_target', null);
-    },
-    set reblogTarget(value) {
-        return GM_setValue('reblog_target', value);
-    },
     clear: function () {
-        GM_deleteValue('consumer_token');
-        GM_deleteValue('user_token');
-        GM_deleteValue('reblog_target');
-        GM_deleteValue('accounts');
+        GM_listValues.forEach(e => GM_deleteValue(e));
+    },
+    logAll: function() {
+        GM_listValues.forEach(e => console.log(GM_getValue(e)));
     }
 };
