@@ -101,7 +101,7 @@
           <v-text-field label="Consumer Secret" v-model="consumerSecret" required />
         </v-card-text>
         <v-card-actions>
-          <v-btn color="primary" @click="setConsumerToken">Save</v-btn>
+          <v-btn color="primary" @click="setConsumerToken({key: consumerKey, secret: consumerSecret})">Save</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
