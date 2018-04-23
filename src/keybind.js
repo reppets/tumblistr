@@ -33,8 +33,11 @@ export default function bindKeys(store) {
 	keyListener.register_combo({
 		keys: SHOW_OPENER,
 		on_keyup: function () {
-			store.commit(SET_VUETIFY_TAB_INDEX, "0");
-			return true;
+			if (store.state.mode === Mode.INPUT) {
+				return true;
+			} else {
+				store.commit(SET_VUETIFY_TAB_INDEX, "0");
+			}
 		},
 	})
 
