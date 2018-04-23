@@ -31,7 +31,6 @@ export default {
 		'scroll-to-me': {
 			componentUpdated: function(el, binding) {
 				if (!binding.oldValue && binding.value) {
-					console.log('scroll-to-me',el);
 					el.parentNode.scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'nearest'});
 				}
 			}

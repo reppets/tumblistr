@@ -66,7 +66,6 @@ export default {
 				return photo.alt_sizes[photo.alt_sizes.length-1].url;
 			},
 			select: function(post, index) {
-				console.log(post);
 				this.$store.commit(SELECT_POST, {tab:this.tab, post: post, index: index})
 			}
 		},

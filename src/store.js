@@ -126,7 +126,6 @@ export const store = new Vuex.Store({
 				}
 				state.tabs.push(newTab);
 				state.vuetifyTabIndex = state.tabs.length.toString();
-				console.log(state);
 			}
 		},
 		[UPDATE_TAB]: (state, updates) => {
@@ -257,7 +256,6 @@ export const store = new Vuex.Store({
 					reblog_info: false, 
 					notes_info: false,
 					onload: (response) => {
-						console.log(response);
 						let olderPosts = response.response.response.posts;
 						let postsToAdd = olderPosts.filter(p => tab.posts.length === 0 || p.id < last(tab.posts).id);
 						context.commit(UPDATE_TAB, {
