@@ -14,7 +14,7 @@
 					</div>
 					<div v-else-if="tab.selectedPost.type==='chat' && tab.selectedPost.format==='html'" class="elevation-2 text-content" v-html="tab.selectedPost.body"></div><!--TODO show title if present -->
 					<div v-else-if="tab.selectedPost.type==='audio'" class="elevation-2" v-html="tab.selectedPost.embed"></div>
-					<div v-else-if="tab.selectedPost.type==='video'" class="elevation-2" v-html="tab.selectedPost.player[selectedPost.player.length-1].embed_code"></div>
+					<div v-else-if="tab.selectedPost.type==='video'" class="elevation-2" v-html="tab.selectedPost.player[tab.selectedPost.player.length-1].embed_code"></div>
 				</template>
 			</div>
 			<div class="sub-content" v-if="tab.selectedPost && tab.selectedPost.type==='photo' && tab.selectedPost.photos.length > 1">

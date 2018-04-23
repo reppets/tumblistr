@@ -12,7 +12,7 @@ export default function bindKeys() {
 		keys: NEXT_POST,
 		on_keydown: function() {
 			store.commit(SELECT_NEXT_POST);
-			return true;
+			//return true; TODO return true if an input box has focus.
 		}
 	});
 
@@ -20,7 +20,7 @@ export default function bindKeys() {
 		keys: PREV_POST,
 		on_keydown: function() {
 			store.commit(SELECT_PREVIOUS_POST);
-			return true;
+			//return true; TODO return true if an input box has focus.
 		}
 	});
 	
