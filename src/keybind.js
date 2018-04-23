@@ -1,26 +1,32 @@
-import {store, SET_VUETIFY_TAB_INDEX, SELECT_NEXT_POST, SELECT_PREVIOUS_POST} from './store';
+import {SET_VUETIFY_TAB_INDEX, SELECT_NEXT_POST, SELECT_PREVIOUS_POST, Mode} from './store';
 
 const NEXT_POST = 'right';
 const PREV_POST = 'left';
 const SHOW_OPENER = 'o';
 
 
-export default function bindKeys() {
+export default function bindKeys(store) {
 	let keyListener = new window.keypress.Listener();
 
 	keyListener.register_combo({
 		keys: NEXT_POST,
 		on_keydown: function() {
-			store.commit(SELECT_NEXT_POST);
-			//return true; TODO return true if an input box has focus.
+			if (store.state.mode === Mode.INPUT) {
+				return true;
+			} else {
+				store.commit(SELECT_NEXT_POST);
+			}
 		}
 	});
 
 	keyListener.register_combo({
 		keys: PREV_POST,
 		on_keydown: function() {
-			store.commit(SELECT_PREVIOUS_POST);
-			//return true; TODO return true if an input box has focus.
+			if (store.state.mode === Mode.INPUT) {
+				return true;
+			} else {
+				store.commit(SELECT_PREVIOUS_POST);
+			}
 		}
 	});
 	

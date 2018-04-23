@@ -82,9 +82,9 @@
             <v-card>
               <v-card-title class="title"><v-icon>dashboard</v-icon>Blog</v-card-title>
               <v-card-actions><v-layout justify-end align-center>
-                <v-flex xs3 mx-1><v-text-field label="Blog Name" v-model="blogName"></v-text-field></v-flex>
-                <v-flex xs2 mx-1><v-select label="Post Type" v-model="blogType" :items="types" dense></v-select></v-flex>
-                <v-flex xs3 mx-1><v-text-field label="Tag Filter" v-model="blogTag"></v-text-field></v-flex>
+                <v-flex xs3 mx-1><v-text-field label="Blog Name" v-model="blogName" @focus="setMode('input')" @blur="setMode('view')"></v-text-field></v-flex>
+                <v-flex xs2 mx-1><v-select label="Post Type" v-model="blogType" :items="types" dense @focus="setMode('input')" @blur="setMode('view')"></v-select></v-flex>
+                <v-flex xs3 mx-1><v-text-field label="Tag Filter" v-model="blogTag" @focus="setMode('input')" @blur="setMode('view')"></v-text-field></v-flex>
                 <v-btn color="primary" @click.stop="openTab({type:'blog', args:{blogName: blogName, filter: blogType, tag: blogTag}})">Open</v-btn>
               </v-layout></v-card-actions>
             </v-card>
@@ -97,8 +97,8 @@
       <v-card>
         <v-card-title class="title">Set API Keys</v-card-title>
         <v-card-text>
-          <v-text-field label="Consumer Key" v-model="consumerKey" required />
-          <v-text-field label="Consumer Secret" v-model="consumerSecret" required />
+          <v-text-field label="Consumer Key" v-model="consumerKey" required  @focus="setMode('input')" @blur="setMode('view')" />
+          <v-text-field label="Consumer Secret" v-model="consumerSecret" required  @focus="setMode('input')" @blur="setMode('view')" />
         </v-card-text>
         <v-card-actions>
           <v-btn color="primary" @click="setConsumerToken({key: consumerKey, secret: consumerSecret})">Save</v-btn>
@@ -121,7 +121,7 @@
 
 <script>
 import {Saved} from "./savedvalues.js";
-import {SET_VUETIFY_TAB_INDEX, AUTHORIZE, SET_CONSUMER_TOKEN, SET_CURRENT_ACCOUNT, SET_REBLOG_TARGET, OPEN_TAB} from "./store.js";
+import {SET_VUETIFY_TAB_INDEX, AUTHORIZE, SET_CONSUMER_TOKEN, SET_CURRENT_ACCOUNT, SET_REBLOG_TARGET, OPEN_TAB, SET_MODE, Mode} from "./store.js";
 import AccountMenu from "./AccountMenu.vue";
 import TypeIcon from "./TypeIcon.vue";
 import DashboardPane from "./DashboardPane.vue";
@@ -169,7 +169,7 @@ export default {
 
     },
     Vuex.mapMutations([
-      SET_CONSUMER_TOKEN, SET_CURRENT_ACCOUNT, SET_REBLOG_TARGET, OPEN_TAB
+      SET_CONSUMER_TOKEN, SET_CURRENT_ACCOUNT, SET_REBLOG_TARGET, OPEN_TAB, SET_MODE
     ]),
     Vuex.mapActions([
       AUTHORIZE,

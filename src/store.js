@@ -14,11 +14,16 @@ export const SELECT_POST = 'selectPost';
 export const SELECT_PHOTO = 'selectPhoto';
 export const SELECT_NEXT_POST = 'selectNextPost';
 export const SELECT_PREVIOUS_POST = 'selectPrevPost';
+export const SET_MODE = 'setMode';
 
 export const AUTHORIZE = 'authorize';
 export const LOAD_DASHBOARD = 'loadDashboard';
 export const LOAD_LIKES = 'loadLikes';
 export const LOAD_BLOG = 'loadBlog';
+
+export const Mode = Object.freeze({
+	VIEW:'view', INPUT:'input'
+});
 
 const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=true';
 const TOKEN_OBSERVER_ID = '#tokenObserver';
@@ -31,7 +36,8 @@ const initialState = {
 	currentAccount: null,
 	authorizing: false,
 	tabs: [],
-	vuetifyTabIndex: '0'
+	vuetifyTabIndex: '0',
+	mode: Mode.VIEW
 };
 
 let tumblr = initialState.consumerToken != null ? new Tumblr(initialState.consumerToken): null;
@@ -203,6 +209,9 @@ export const store = new Vuex.Store({
 			if (activeTab.selectedPost.type === 'photo' && activeTab.selectedPost.selectedPhotoIndex == null) {
 				Vue.set(activeTab.selectedPost, 'selectedPhotoIndex', 0);
 			}
+		},
+		[SET_MODE]: (state, mode) => {
+			state.mode = mode;
 		}
 	},
 	actions: {

@@ -60,7 +60,7 @@ const TOKEN_OBSERVER_ID = '#tokenObserver';
 			}
 	});
 
-	bindKeys();
+	bindKeys(store);
 	
 	let vm = new Vue({
 		el: '#root',
