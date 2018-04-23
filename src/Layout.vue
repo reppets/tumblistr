@@ -2,27 +2,23 @@
   <v-app>
     <v-navigation-drawer app mini-variant dark mini-variant-width="40" style="display: flex; flex-direction: column; align-items: center;">
       <v-menu v-if="currentAccount">
-        <v-btn slot="activator" flat icon color="white"><v-avatar v-if="currentAccount" size="28px" class="grey darken-3"><img :src="userAvatarUrl"></v-avatar></v-btn>
+        <v-btn slot="activator" flat icon color="white"><v-avatar v-if="currentAccount" size="28px" class="grey darken-3"><img :src="currentAccount.userInfo.avatarUrl"></v-avatar></v-btn>
         <v-list>
           <v-list-tile avatar>
-            <v-list-tile-avatar><img :src="avatarUrl(currentAccount.userInfo.name)"></v-list-tile-avatar>
+            <v-list-tile-avatar><img :src="currentAccount.userInfo.avatarUrl"></v-list-tile-avatar>
             <v-list-tile-title>{{currentAccount.userInfo.name}}</v-list-tile-title>
           </v-list-tile>
           <v-divider/>
           <template v-if="accounts.length > 1">
             <v-subheader>Accounts</v-subheader>
-            <v-list-tile avatar v-for="account in accounts" v-if="!account.current" :key="account.userInfo.name" @click="selectAccount(account)">
-              <v-list-tile-avatar size="28"><img :src="avatarUrl(account.userInfo.name)"></v-list-tile-avatar>
+            <v-list-tile avatar v-for="account in accounts" v-if="!account.current" :key="account.userInfo.name" @click="setCurrentAccount(account)">
+              <v-list-tile-avatar size="28"><img :src="account.userInfo.avatarUrl"></v-list-tile-avatar>
               <v-list-tile-title>{{account.userInfo.name}}</v-list-tile-title>
             </v-list-tile>
             <v-divider/>
           </template>
-          <v-list-tile key="add-account" @click="addAccount">
+          <v-list-tile key="add-account" @click="authorize">
             <v-list-tile-title><v-icon>add</v-icon>Add Account</v-list-tile-title>
-          </v-list-tile>
-          <v-divider/>
-          <v-list-tile key="reset-store" @click="emit('reset-store')"><!-- should go to under the setting icon -->
-            <v-list-tile-title>reset</v-list-tile-title>
           </v-list-tile>
 
         </v-list>
@@ -30,13 +26,13 @@
       <hr style="width: 80%; height:1px; background-color:rgba(255,255,255,0.3); border: 0;" />
       <v-menu v-if="currentAccount">
         <v-btn slot="activator" flat icon color="white"><!-- TODO: border-radius styling -->
-          <v-avatar size="28px" tile class="grey darken-3"><img :src="reblogAvatarUrl"  style="border-radius: 20%;"></v-avatar>
+          <v-avatar size="28px" tile class="grey darken-3"><img :src="currentAccount.reblogTarget.avatarUrl"  style="border-radius: 20%;"></v-avatar>
           <v-icon small style="position: absolute; bottom: 0; right: 0;font-weight:bold;" class="c-reblog">repeat</v-icon>
         </v-btn>
         <v-list>
           <v-subheader>Reblog to</v-subheader>
           <v-list-tile  v-for="blog in currentAccount.userInfo.blogs" :key="blog.name" @click="setReblogTarget(blog)" avatar>
-            <v-list-tile-avatar><img :src="avatarUrl(blog.name, 32)"></v-list-tile-avatar>
+            <v-list-tile-avatar><img :src="blog.avatarUrl"></v-list-tile-avatar>
             <v-list-tile-title>{{blog.name}}</v-list-tile-title>
           </v-list-tile>
         </v-list>
@@ -53,7 +49,7 @@
               <v-icon>favorite</v-icon>Likes
             </span>
             <span v-else-if="tab.type==='blog'" class="tab-label">
-              <img :src="avatarUrl(tab.args.blogName, 24)" width="24" height="24">{{ tab.args.blogName }}<TypeIcon v-if="tab.args.filter" :type="tab.args.filter"/>
+              <img :src="avatarUrl({blogID: tab.args.blogName, size:24})" width="24" height="24">{{ tab.args.blogName }}<TypeIcon v-if="tab.args.filter" :type="tab.args.filter"/>
             </span>
           </v-tab>
           <v-tab><v-icon>add</v-icon></v-tab>
@@ -61,12 +57,12 @@
         <!--<AccountMenu id="account-menu" :userData="userData"/>-->
       </div>
       <div id="content-area">
-        <v-tabs-items v-model="activeTab" class="tab-content" @input="selectTab">
+        <v-tabs-items v-model="activeTab" class="tab-content">
 
           <v-tab-item v-for="tab in tabs" :key="tab.key" :transition="false" :reverse-transition="false" style="max-height:100%; height:100%">
-            <DashboardPane v-if="tab.type==='dashboard'" :args="tab.args" :active="tab.isActive"></DashboardPane>
-            <LikesPane v-else-if="tab.type==='likes'" :active="tab.isActive"></LikesPane>
-            <BlogPane v-else-if="tab.type==='blog'" :args="tab.args" :active="tab.isActive"></BlogPane>
+            <DashboardPane v-if="tab.type==='dashboard'" :tab="tab"></DashboardPane>
+            <LikesPane v-else-if="tab.type==='likes'" :tab="tab"></LikesPane>
+            <BlogPane v-else-if="tab.type==='blog'" :tab="tab"></BlogPane>
           </v-tab-item>
 
           <v-tab-item class="opener-tab v-scroll" :transition="false" :reverse-transition="false">
@@ -74,13 +70,13 @@
               <v-card-title class="title"><v-icon>home</v-icon>Dashboard</v-card-title>
               <v-card-actions><v-layout justify-end align-center>
                 <v-flex xs2 mx-1><v-select label="Post Type" v-model="dashboardType" :items="types" dense></v-select></v-flex>
-                <v-btn color="primary" @click.stop="open('dashboard', {filter:dashboardType})">Open</v-btn>
+                <v-btn color="primary" @click.stop="openTab({type:'dashboard', args:{filter:dashboardType}})">Open</v-btn>
               </v-layout></v-card-actions>
             </v-card>
             <v-card>
               <v-card-title class="title"><v-icon>favorite</v-icon>Likes</v-card-title>
               <v-card-actions><v-layout justify-end align-center>
-                <v-btn color="primary" @click.stop="open('likes', {})">Open</v-btn>
+                <v-btn color="primary" @click.stop="openTab({type:'likes', args:{}})">Open</v-btn>
               </v-layout></v-card-actions>
             </v-card>
             <v-card>
@@ -89,7 +85,7 @@
                 <v-flex xs3 mx-1><v-text-field label="Blog Name" v-model="blogName"></v-text-field></v-flex>
                 <v-flex xs2 mx-1><v-select label="Post Type" v-model="blogType" :items="types" dense></v-select></v-flex>
                 <v-flex xs3 mx-1><v-text-field label="Tag Filter" v-model="blogTag"></v-text-field></v-flex>
-                <v-btn color="primary" @click.stop="open('blog', {blogName: blogName, filter: blogType, tag: blogTag})">Open</v-btn>
+                <v-btn color="primary" @click.stop="openTab({type:'blog', args:{blogName: blogName, filter: blogType, tag: blogTag}})">Open</v-btn>
               </v-layout></v-card-actions>
             </v-card>
           </v-tab-item>
@@ -110,12 +106,12 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-bind:value="requiresAuthorization" persistent max-width="600px">
+    <v-dialog v-bind:value="lacksActiveAccount" persistent max-width="600px">
       <v-card>
         <v-card-title class="title">Please authorize the app</v-card-title>
         <v-card-actions>
           <v-layout justify-center>
-            <v-btn color="primary" @click="openAuthPage" :loading="authorizing">Authorize</v-btn>
+            <v-btn color="primary" @click="authorize" :loading="authorizing">Authorize</v-btn>
           </v-layout>
         </v-card-actions>
       </v-card>
@@ -124,8 +120,8 @@
 </template>
 
 <script>
-import {Context} from "./context.js";
 import {Saved} from "./savedvalues.js";
+import {SET_VUETIFY_TAB_INDEX, AUTHORIZE, SET_CONSUMER_TOKEN, SET_CURRENT_ACCOUNT, SET_REBLOG_TARGET, OPEN_TAB} from "./store.js";
 import AccountMenu from "./AccountMenu.vue";
 import TypeIcon from "./TypeIcon.vue";
 import DashboardPane from "./DashboardPane.vue";
@@ -135,11 +131,8 @@ import BlogPane from "./BlogPane.vue";
 export default {
   data() {
     return {
-      activeTab: "0",
-      tabs: [],
       consumerKey: null,
       consumerSecret: null,
-      validatingKeys: false,
       dashboardType: null,
       blogName: null,
       blogType: null,
@@ -150,94 +143,38 @@ export default {
         {text: 'Audio', value: 'audio'}, {text:'Video', value:'video'}, {text:'Answer',value:'answer'}]
     };
   },
-  props : {
-    consumerToken: Object,
-    accounts: Array,
-    currentAccount: Object,
-    authorizing: Boolean,
-    addNewAccount: Boolean
-  },
   components: {
     AccountMenu, TypeIcon, DashboardPane, LikesPane, BlogPane
   },
-  computed: {
-    userAvatarUrl: function() {
-      return Context.client.getAvatarURL(this.currentAccount.userInfo.name, 32);
-    },
-    reblogAvatarUrl: function() {
-      return Context.client.getAvatarURL(this.currentAccount.reblogTarget.name, 32);
-    },
-    lacksConsumerToken: function() {
-      return this.consumerToken == null;
-    },
-    requiresAuthorization: function() {
-      return this.currentAccount == null || this.addNewAccount;
-    }
-  },
-  methods: {
-    setConsumerToken: function() {
-      Context.eventBus.$emit('set-consumer-token', {key: this.consumerKey, secret: this.consumerSecret});
-    },
-    openAuthPage: function() {
-      Context.eventBus.$emit('authorize');
-    },
-    addAccount: function() {
-      Context.eventBus.$emit('add-new-account');
-    },
-    selectAccount: function(account) {
-      Context.eventBus.$emit('select-account', account);
-    },
-    open: function(type, args) {
-      let idx = this.tabs.findIndex(e=>e.key===key(type, args));
-      if (idx>=0) {
-        this.activeTab = (idx+1).toString();
-        return;
-      }
-      this.tabs.push({
-        type: type,
-        args: args,
-        key: key(type, args),
-        isActive: true
-      });
-      this.activeTab = (this.tabs.length).toString();
-    },
-    avatarUrl: function(blogName, size) {
-      return Context.client.getAvatarURL(blogName, size);
-    },
-    selectTab: function(index) { // type of index is supposed to be a string;
-      this.tabs.filter(e=>e.isActive).forEach(e=>e.isActive=false);
-      let n = parseInt(index) - 1;
-      if (n >= 0) {
-        this.tabs[n].isActive = true;
+  computed: Object.assign(
+    {
+      activeTab: {
+        get: function() {
+          return this.$store.state.vuetifyTabIndex;
+        },
+        set: function(value) {
+          this.$store.commit(SET_VUETIFY_TAB_INDEX, value);
+        }
       }
     },
-    setReblogTarget: function(blog) {
-      Context.eventBus.$emit('set-reblog-target', blog);
+    Vuex.mapState([
+      'accounts','currentAccount','authorizing','tabs'
+    ]),
+    Vuex.mapGetters([
+      'lacksConsumerToken', 'lacksActiveAccount', 'avatarUrl'
+    ]),
+  ),
+  methods: Object.assign(
+    {
+
     },
-    emit: function(event, ...args) { //TODO rename
-      Context.eventBus.$emit(event, ...args);
-    },
-    log: function(print) {
-      console.log(print);
-    }
-  },
-  watch: {
-    currentAccount: function() {
-      this.activeTab = "0";
-      this.tabs = [];
-    },
-    activeTab: function(newValue, oldValue) {
-      if (oldValue !== "0") {
-        this.tabs[parseInt(oldValue) - 1].isActive = false;
-      }
-      if (newValue !== "0") {
-        this.tabs[parseInt(newValue) - 1].isActive = true;
-      }
-    }
-  },
-  mounted: function() {
-    Context.eventBus.$on('show-tab-opener', () => this.activeTab="0");
-  }
+    Vuex.mapMutations([
+      SET_CONSUMER_TOKEN, SET_CURRENT_ACCOUNT, SET_REBLOG_TARGET, OPEN_TAB
+    ]),
+    Vuex.mapActions([
+      AUTHORIZE,
+    ])
+  ),
 };
 
 function key(type, args) {

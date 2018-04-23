@@ -12,9 +12,12 @@ export const Saved = {
         GM_setValue('accounts', value);
     },
     clear: function () {
-        GM_listValues.forEach(e => GM_deleteValue(e));
+        GM_listValues().forEach(e => GM_deleteValue(e));
+    },
+    clearUserData: function() {
+        GM_listValues().filter(e=>e!=='consumer_token').forEach(e => GM_deleteValue(e));
     },
     logAll: function() {
-        GM_listValues.forEach(e => console.log(GM_getValue(e)));
+        GM_listValues().forEach(e => console.log(GM_getValue(e)));
     }
 };

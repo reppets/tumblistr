@@ -1,5 +1,4 @@
 import {splitParameter} from './utils.js';
-import {Context} from './context.js';
 
 function isValidCallback() {
     return window.location.search.indexOf('oauth_token') > 0 && window.location.search.indexOf('oauth_verifier') > 0 && window.opener;

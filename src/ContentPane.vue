@@ -2,30 +2,30 @@
 	<div class="pane">
 		<div class="detail">
 			<div class="main-content">
-				<template v-if="selectedPost">
-					<div v-if="selectedPost.type==='text' && selectedPost.format==='html'" class="elevation-2 text-content" v-html="selectedPost.body"></div><!--TODO show title if present -->
-					<img v-if="selectedPost.type==='photo'" v-show-on-load="selectedPost.photos[selectedPost.selectedPhotoIndex].original_size.url">
-					<div v-if="selectedPost.type==='quote' && selectedPost.format==='html'" class="elevation-2 text-content">
-						<blockquote v-html="selectedPost.text"></blockquote>
-						<div class="source" v-html="selectedPost.source"></div>
+				<template v-if="tab.selectedPost">
+					<div v-if="tab.selectedPost.type==='text' && tab.selectedPost.format==='html'" class="elevation-2 text-content" v-html="tab.selectedPost.body"></div><!--TODO show title if present -->
+					<img v-if="tab.selectedPost.type==='photo'" v-show-on-load="tab.selectedPost.photos[tab.selectedPost.selectedPhotoIndex].original_size.url">
+					<div v-if="tab.selectedPost.type==='quote' && tab.selectedPost.format==='html'" class="elevation-2 text-content">
+						<blockquote v-html="tab.selectedPost.text"></blockquote>
+						<div class="source" v-html="tab.selectedPost.source"></div>
 					</div>
-					<div v-if="selectedPost.type==='link' && selectedPost.format==='html'" class="elevation-2 text-content">
-						<a :href="selectedPost.url" target="_blank">{{selectedPost.title}}</a>
+					<div v-if="tab.selectedPost.type==='link' && tab.selectedPost.format==='html'" class="elevation-2 text-content">
+						<a :href="tab.selectedPost.url" target="_blank">{{tab.selectedPost.title}}</a>
 					</div>
-					<div v-else-if="selectedPost.type==='chat' && selectedPost.format==='html'" class="elevation-2 text-content" v-html="selectedPost.body"></div><!--TODO show title if present -->
-					<div v-else-if="selectedPost.type==='audio'" class="elevation-2" v-html="selectedPost.embed"></div>
-					<div v-else-if="selectedPost.type==='video'" class="elevation-2" v-html="selectedPost.player[selectedPost.player.length-1].embed_code"></div>
+					<div v-else-if="tab.selectedPost.type==='chat' && tab.selectedPost.format==='html'" class="elevation-2 text-content" v-html="tab.selectedPost.body"></div><!--TODO show title if present -->
+					<div v-else-if="tab.selectedPost.type==='audio'" class="elevation-2" v-html="tab.selectedPost.embed"></div>
+					<div v-else-if="tab.selectedPost.type==='video'" class="elevation-2" v-html="tab.selectedPost.player[selectedPost.player.length-1].embed_code"></div>
 				</template>
 			</div>
-			<div class="sub-content" v-if="selectedPost && selectedPost.type==='photo' && selectedPost.photos.length > 1">
-				<img v-for="(photo, index) in selectedPost.photos" :key="index + photo.original_size.url" v-show-on-load="photo.alt_sizes[photo.alt_sizes.length-2].url" @click="selectedPost.selectedPhotoIndex = index" :class="{selected: selectedPost.selectedPhotoIndex===index}">
+			<div class="sub-content" v-if="tab.selectedPost && tab.selectedPost.type==='photo' && tab.selectedPost.photos.length > 1">
+				<img v-for="(photo, index) in tab.selectedPost.photos" :key="index + photo.original_size.url" v-show-on-load="photo.alt_sizes[photo.alt_sizes.length-2].url" @click="selectPhoto({tab:tab, postIndex:tab.selectedIndex, photoIndex: index})" :class="{selected: tab.selectedPost.selectedPhotoIndex===index}">
 			</div>
 		</div>
 		<div class="splitter"></div>
 		<div class="v-scroll list-pane" v-handled-element:list @scroll="triggerLoad" v-resize="triggerLoad">
 			  <div class="wrapper">
 					<ul class="list-area">
-						<PostCell v-for="(post,index) in posts" :key="post.id" @select="select(post, index)" :post="post"></PostCell>
+						<PostCell v-for="(post,index) in tab.posts" :key="post.id" @select="select(post, index)" :post="post"></PostCell>
 					</ul>
 				</div>
 		</div>
@@ -35,74 +35,47 @@
 <script>
 import TypeIcon from "./TypeIcon.vue";
 import PostCell from "./PostCell.vue";
-import {Context} from "./context";
 import {last} from "./utils"
+import {SELECT_POST, SELECT_PHOTO} from "./store.js";
 
 export default {
   components: {
     TypeIcon, PostCell
   },
   props: {
-		args: Object,
-		active: Boolean
+		tab: Object,
 	},
-  data: function() {
-    return {
-      offset: null,
-      posts: [],
-			selectedIndex: null,
-			loading: false,
-			offset: 0,
-			noOlderPost: false,
-			selectedPost: null
-    };
-  },
   mounted: function() {
-		Context.eventBus.$on('select-next', ()=> {
-			if (this.active && this.posts.length>0) {
-				if (this.selectedIndex == null) {
-					this.select(this.posts[0], 0);
-				} else if (this.selectedIndex < this.posts.length-1) {
-					this.select(this.posts[this.selectedIndex+1], this.selectedIndex+1); 
-				}
-			}
-		});
-		Context.eventBus.$on('select-prev', ()=> {
-			if (this.active && this.posts.length>0) {
-				if (this.selectedIndex != null && this.selectedIndex > 0) {
-					this.select(this.posts[this.selectedIndex-1], this.selectedIndex-1);
-				} else {
-					this.select(this.posts[0], 0);
-				}
-			}
-		});
     this.triggerLoad();
-  },
-  methods: {
-		triggerLoad: function() {
-			let el = this.domElements.list;
-			if (el.scrollTop + el.clientHeight + 80 < el.scrollHeight || this.loading) {
-				return;
+	},
+	updated: function() {
+		this.$nextTick(function() {
+			this.triggerLoad();
+		});
+	},
+  methods: Object.assign(
+		{
+			triggerLoad: function() {
+				const el = this.domElements.list;
+				if (el.scrollTop + el.clientHeight + 80 < el.scrollHeight || this.tab.loading || this.tab.noOlderPost) {
+					return;
+				}
+				this.load();
+			},
+			thumbnailUrl: function(photo) {
+				return photo.alt_sizes[photo.alt_sizes.length-1].url;
+			},
+			select: function(post, index) {
+				console.log(post);
+				this.$store.commit(SELECT_POST, {tab:this.tab, post: post, index: index})
 			}
-			this.loading = true;
-			this.load();
 		},
-    thumbnailUrl: function(photo) {
-      return photo.alt_sizes[photo.alt_sizes.length-1].url;
-    },
-    select: function(post, index) {
-			console.log(post);
-			if(this.selectedPost) this.selectedPost.selected = false;
-			this.selectedPost = post;
-			this.selectedIndex = index;
-			Vue.set(post, 'selected', true);
-			if (post.type==='photo' && post.selectedPhotoIndex ==  null) {
-				Vue.set(post, 'selectedPhotoIndex', 0);
-			}
-    }
-  }
-  
+		Vuex.mapMutations([
+			SELECT_PHOTO
+		])
+	)
 }
+
 </script>
 
 

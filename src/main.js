@@ -1,12 +1,11 @@
 import Layout from './Layout.vue';
 import { isValidCallback, setTokenToOpener, tokenObserver } from './token.js';
 import { splitParameter } from './utils.js';
-import { Context } from './context.js';
-import { Saved } from './Saved.js';
+import { Saved } from './savedvalues.js';
+import { store } from './store.js';
 import bindKeys from './keybind';
 
 const TOKEN_OBSERVER_ID = '#tokenObserver';
-const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=true';
 
 (function main() {
 
@@ -34,17 +33,6 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 	})();
 
 	// Global Event Listeners ----------------------------------------------------------------------------
-	Context.eventBus = new Vue();
-
-	Context.eventBus.$on('forget-account', function () {
-		Saved.userToken = null;
-		data.props.userData = null;
-		data.props.authStage = 'user-token-unset';
-	});
-
-	Context.eventBus.$on('reset-store', function() {
-		Saved.clear();
-	});
 
 	Vue.directive('handled-element',{
 		bind: function(el, binding, vnode) {
@@ -54,6 +42,8 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 	});
 
 	Vue.directive('show-on-load', {
+		// hides an element when the src value is changed until it completes loading.
+		// intended to add to img elements.
 		bind: function(el, binding) {
 				el.src = binding.value;
 		},
@@ -74,129 +64,9 @@ const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=t
 	
 	let vm = new Vue({
 		el: '#root',
-		template: '<Layout v-bind="props"/>',
+		store,
+		template: '<Layout />',
 		components: { Layout },
-		data: {
-			props: {
-				consumerToken: null,
-				accounts: [],
-				currentAccount: null,
-				authorizing: false,
-				addNewAccount: false
-			}
-		},
-		methods: {
-			authorize: function() {
-				this.props.authorizing = true;
-				Context.client.getRequestToken({
-					oauth_callback: CALLBACK_URL,
-					onload: (response) => {
-						if (response.status === 200) {
-							// after obtaining the request token, set the observer and open the authorization page.
-							let params = splitParameter(response.responseText);
-							new MutationObserver(tokenObserver(params.oauth_token, params.oauth_token_secret, Context.client, this.newAccessToken))
-								.observe(document.querySelector(TOKEN_OBSERVER_ID),{ childList: true });
-							window.open(Context.client.getAuthorizeURL(params.oauth_token), '_blank');
-						} else if (response.status === 401) {
-							Saved.consumerToken = null;
-							// TODO show error message.
-						}
-					}
-				});
-			},
-			newAccessToken: function(key, secret) {
-				console.log('newAccessToken');
-				let token = {key: key, secret: secret};
-				Context.client.getUserInfo({
-					token: token,
-					onload: (response) => {
-						console.log('userinfo', response);
-						if (response.status === 200) {
-							let userInfo = response.response.response.user;
-							let existing = this.props.accounts.find(e=>e.userInfo.name === userInfo.name);
-							if (existing) {
-								existing.token = token;
-								existing.userInfo = userInfo;
-								if (userInfo.blogs.find(e=>e.name === existing.reblogTarget) == null) {
-									existing.reblogTarget = userInfo.blogs.find(e=>e.primary);
-								}
-							} else {
-								console.log('expected');
-								let current = this.props.accounts.find(e=>e.current);
-								if (current) current.current = false;
-								this.props.currentAccount = {
-									token: token,
-									userInfo: userInfo,
-									reblogTarget: userInfo.blogs.find(e=>e.primary),
-									current: true
-								};
-								this.props.accounts.push(this.props.currentAccount);
-							}
-						} // TODO error handling
-						this.props.authorizing = false;
-						this.props.addNewAccount = false;
-					}
-				})
-			}
-		},
-		watch: {
-			'props.consumerToken': function(newToken, oldToken) {
-				console.log('consumerToken changed', newToken, oldToken);
-				Saved.consumerToken = newToken;
-				if (newToken==null) {
-					// when deleting token
-					Context.client = null;
-				} else {
-					Context.client = new Tumblr(newToken);
-				}
-				// TODO reset everything
-			},
-			'props.currentAccount': function(newAccount) {
-				console.log('currentAccount changed');
-				Context.client.setToken(newAccount.token);
-			},
-			'props.accounts': {
-				handler: function(newAccounts) {
-					console.log('accounts changed');
-					Saved.accounts = newAccounts;
-				},
-				deep: true
-			}
-		},
-		beforeCreate: function() {
-			let consumerToken = Saved.consumerToken;
-			if (consumerToken) {
-				Context.client = new Tumblr(consumerToken);
-			}
-		},
-		created: function() {
-			console.log('vm created');
-			this.props.consumerToken = Saved.consumerToken;
-			if (this.props.consumerToken) {
-				this.props.accounts = Saved.accounts;
-				if (this.props.accounts.length > 0) {
-					this.props.currentAccount = this.props.accounts.find(e=>e.current);
-				}
-			}
-		}
-	});
-
-	Context.eventBus.$on('set-consumer-token', function (token) {
-		vm.$data.props.consumerToken = token;	
-	});
-	Context.eventBus.$on('authorize', function () {
-		vm.authorize();
-	});
-	Context.eventBus.$on('set-reblog-target', function (blog) {
-		vm.$data.props.currentAccount.reblogTarget = blog;
-	});
-	Context.eventBus.$on('add-new-account', function() {
-		vm.$data.props.addNewAccount = true;
-	});
-	Context.eventBus.$on('select-account', function(account) {
-		vm.$data.props.accounts.find(e=>e.current).current = false;
-		account.current = true;
-		vm.$data.props.currentAccount = account;
 	});
 
 }) ();
