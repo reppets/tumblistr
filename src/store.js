@@ -13,7 +13,9 @@ export const UPDATE_TAB = 'updateTab';
 export const SELECT_POST = 'selectPost';
 export const SELECT_PHOTO = 'selectPhoto';
 export const SELECT_NEXT_POST = 'selectNextPost';
-export const SELECT_PREVIOUS_POST = 'selectPrevPost';
+export const SELECT_PREVIOUS_POST = 'selectPreviousPost';
+export const SELECT_NEXT_PHOTO = 'selectNextPhoto';
+export const SELECT_PREVIOUS_PHOTO = 'selectPreviousPhoto';
 export const SET_MODE = 'setMode';
 
 export const AUTHORIZE = 'authorize';
@@ -22,7 +24,7 @@ export const LOAD_LIKES = 'loadLikes';
 export const LOAD_BLOG = 'loadBlog';
 
 export const Mode = Object.freeze({
-	VIEW:'view', INPUT:'input'
+	VIEW:'view', INPUT:'input', DIALOG:'dialog', DIALOG_INPUT: 'dialog-input'
 });
 
 const CALLBACK_URL = 'http://reppets.net/tumblistr/dev/tumblistr.html?callback=true';
@@ -209,6 +211,28 @@ export const store = new Vuex.Store({
 			if (activeTab.selectedPost.type === 'photo' && activeTab.selectedPost.selectedPhotoIndex == null) {
 				Vue.set(activeTab.selectedPost, 'selectedPhotoIndex', 0);
 			}
+		},
+		[SELECT_NEXT_PHOTO]: (state) => {
+			const activeTabIndex = parseInt(state.vuetifyTabIndex) - 1;
+			if (activeTabIndex < 0) {
+				return;
+			}
+			const post = state.tabs[activeTabIndex].selectedPost;
+			if (post.type !== 'photo' || post.photos.length <= 1) {
+				return;
+			}
+			post.selectedPhotoIndex = Math.min(post.photos.length-1, post.selectedPhotoIndex+1);
+		},
+		[SELECT_PREVIOUS_PHOTO]: (state) => {
+			const activeTabIndex = parseInt(state.vuetifyTabIndex) - 1;
+			if (activeTabIndex < 0) {
+				return;
+			}
+			const post = state.tabs[activeTabIndex].selectedPost;
+			if (post.type !== 'photo' || post.photos.length <= 1) {
+				return;
+			}
+			post.selectedPhotoIndex = Math.max(0, post.selectedPhotoIndex-1);
 		},
 		[SET_MODE]: (state, mode) => {
 			state.mode = mode;

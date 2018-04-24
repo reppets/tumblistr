@@ -175,6 +175,15 @@ export default {
       AUTHORIZE,
     ])
   ),
+  watch: {
+    lacksActiveAccount: function(newValue) {
+      if (newValue) {
+        this.$store.commit(SET_MODE, Mode.DIALOG);
+      } else {
+        this.$store.commit(SET_MODE, Mode.VIEW);
+      }
+    }
+  }
 };
 
 function key(type, args) {

@@ -1,44 +1,58 @@
-import {SET_VUETIFY_TAB_INDEX, SELECT_NEXT_POST, SELECT_PREVIOUS_POST, Mode} from './store';
+import {SET_VUETIFY_TAB_INDEX, SELECT_NEXT_POST, SELECT_PREVIOUS_POST, SELECT_NEXT_PHOTO, SELECT_PREVIOUS_PHOTO, Mode} from './store';
 
 const NEXT_POST = 'right';
 const PREV_POST = 'left';
+const NEXT_PHOTO = 'shift down';
+const PREV_PHOTO = 'shift up';
 const SHOW_OPENER = 'o';
 
 
 export default function bindKeys(store) {
 	let keyListener = new window.keypress.Listener();
 
-	keyListener.register_combo({
-		keys: NEXT_POST,
-		on_keydown: function() {
-			if (store.state.mode === Mode.INPUT) {
-				return true;
+	function doIf(modes, func) {
+		return function() {
+			if (modes.find(e => e === store.state.mode) != null) {
+				return func();
 			} else {
-				store.commit(SELECT_NEXT_POST);
+				return true;
 			}
 		}
+	}
+
+	keyListener.register_combo({
+		keys: NEXT_POST,
+		on_keydown: doIf([Mode.VIEW], function() {
+			store.commit(SELECT_NEXT_POST);
+		})
 	});
 
 	keyListener.register_combo({
 		keys: PREV_POST,
-		on_keydown: function() {
-			if (store.state.mode === Mode.INPUT) {
-				return true;
-			} else {
-				store.commit(SELECT_PREVIOUS_POST);
-			}
-		}
+		on_keydown: doIf([Mode.VIEW], function() {
+			store.commit(SELECT_PREVIOUS_POST);
+		})
+	});
+
+	keyListener.register_combo({
+		keys: NEXT_PHOTO,
+		on_keydown: doIf([Mode.VIEW], function() {
+			store.commit(SELECT_NEXT_PHOTO);
+		})
+	});
+
+	keyListener.register_combo({
+		keys: PREV_PHOTO,
+		on_keydown: doIf([Mode.VIEW], function() {
+			store.commit(SELECT_PREVIOUS_PHOTO);
+		})
 	});
 	
 	keyListener.register_combo({
 		keys: SHOW_OPENER,
-		on_keyup: function () {
-			if (store.state.mode === Mode.INPUT) {
-				return true;
-			} else {
+		on_keyup: doIf([Mode.VIEW], function () {
 				store.commit(SET_VUETIFY_TAB_INDEX, "0");
-			}
-		},
+		})
 	})
 
 };
