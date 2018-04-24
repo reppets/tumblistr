@@ -36,7 +36,7 @@
 import TypeIcon from "./TypeIcon.vue";
 import PostCell from "./PostCell.vue";
 import {last} from "./utils"
-import {SELECT_POST, SELECT_PHOTO} from "./store.js";
+import {Mutation} from "./store.js";
 
 export default {
   components: {
@@ -66,11 +66,11 @@ export default {
 				return photo.alt_sizes[photo.alt_sizes.length-1].url;
 			},
 			select: function(post, index) {
-				this.$store.commit(SELECT_POST, {tab:this.tab, post: post, index: index})
+				this.$store.commit(Mutation.SELECT_POST, {tab:this.tab, post: post, index: index})
 			}
 		},
 		Vuex.mapMutations([
-			SELECT_PHOTO
+			Mutation.SELECT_PHOTO
 		])
 	)
 }

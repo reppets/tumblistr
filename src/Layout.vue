@@ -97,8 +97,8 @@
       <v-card>
         <v-card-title class="title">Set API Keys</v-card-title>
         <v-card-text>
-          <v-text-field label="Consumer Key" v-model="consumerKey" required  @focus="setMode('input')" @blur="setMode('view')" />
-          <v-text-field label="Consumer Secret" v-model="consumerSecret" required  @focus="setMode('input')" @blur="setMode('view')" />
+          <v-text-field label="Consumer Key" v-model="consumerKey" required  @focus="setMode('dialog-input')" @blur="setMode('dialog')" />
+          <v-text-field label="Consumer Secret" v-model="consumerSecret" required  @focus="setMode('dialog-input')" @blur="setMode('dialog')" />
         </v-card-text>
         <v-card-actions>
           <v-btn color="primary" @click="setConsumerToken({key: consumerKey, secret: consumerSecret})">Save</v-btn>
@@ -121,7 +121,7 @@
 
 <script>
 import {Saved} from "./savedvalues.js";
-import {SET_VUETIFY_TAB_INDEX, AUTHORIZE, SET_CONSUMER_TOKEN, SET_CURRENT_ACCOUNT, SET_REBLOG_TARGET, OPEN_TAB, SET_MODE, Mode} from "./store.js";
+import {Mutation,Action, Mode} from "./store.js";
 import AccountMenu from "./AccountMenu.vue";
 import TypeIcon from "./TypeIcon.vue";
 import DashboardPane from "./DashboardPane.vue";
@@ -153,7 +153,7 @@ export default {
           return this.$store.state.vuetifyTabIndex;
         },
         set: function(value) {
-          this.$store.commit(SET_VUETIFY_TAB_INDEX, value);
+          this.$store.commit(Mutation.SET_VUETIFY_TAB_INDEX, value);
         }
       }
     },
@@ -169,18 +169,18 @@ export default {
 
     },
     Vuex.mapMutations([
-      SET_CONSUMER_TOKEN, SET_CURRENT_ACCOUNT, SET_REBLOG_TARGET, OPEN_TAB, SET_MODE
+      Mutation.SET_CONSUMER_TOKEN, Mutation.SET_CURRENT_ACCOUNT, Mutation.SET_REBLOG_TARGET, Mutation.OPEN_TAB, Mutation.SET_MODE
     ]),
     Vuex.mapActions([
-      AUTHORIZE,
+      Action.AUTHORIZE,
     ])
   ),
   watch: {
     lacksActiveAccount: function(newValue) {
       if (newValue) {
-        this.$store.commit(SET_MODE, Mode.DIALOG);
+        this.$store.commit(Mutation.SET_MODE, Mode.DIALOG);
       } else {
-        this.$store.commit(SET_MODE, Mode.VIEW);
+        this.$store.commit(Mutation.SET_MODE, Mode.VIEW);
       }
     }
   }

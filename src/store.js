@@ -2,26 +2,30 @@ import {last, splitParameter} from './utils.js';
 import {Saved} from './savedvalues.js';
 import { tokenObserver } from './token.js';
 
-export const SET_AUTHORIZING = 'setAuthorizing';
-export const SET_CONSUMER_TOKEN = 'setConsumerToken';
-export const ADD_ACCOUNT = 'addAccount';
-export const SET_CURRENT_ACCOUNT = 'setCurrentAccount';
-export const SET_REBLOG_TARGET = 'setReblogTarget';
-export const SET_VUETIFY_TAB_INDEX = 'setVuetifyTabIndex';
-export const OPEN_TAB = 'openTab';
-export const UPDATE_TAB = 'updateTab';
-export const SELECT_POST = 'selectPost';
-export const SELECT_PHOTO = 'selectPhoto';
-export const SELECT_NEXT_POST = 'selectNextPost';
-export const SELECT_PREVIOUS_POST = 'selectPreviousPost';
-export const SELECT_NEXT_PHOTO = 'selectNextPhoto';
-export const SELECT_PREVIOUS_PHOTO = 'selectPreviousPhoto';
-export const SET_MODE = 'setMode';
+export const Mutation = Object.freeze({
+	SET_AUTHORIZING:'setAuthorizing',
+	SET_CONSUMER_TOKEN:'setConsumerToken',
+	ADD_ACCOUNT:'addAccount',
+	SET_CURRENT_ACCOUNT:'setCurrentAccount',
+	SET_REBLOG_TARGET:'setReblogTarget',
+	SET_VUETIFY_TAB_INDEX:'setVuetifyTabIndex',
+	OPEN_TAB:'openTab',
+	UPDATE_TAB:'updateTab',
+	SELECT_POST:'selectPost',
+	SELECT_PHOTO:'selectPhoto',
+	SELECT_NEXT_POST:'selectNextPost',
+	SELECT_PREVIOUS_POST:'selectPreviousPost',
+	SELECT_NEXT_PHOTO:'selectNextPhoto',
+	SELECT_PREVIOUS_PHOTO:'selectPreviousPhoto',
+	SET_MODE:'setMode'
+});
 
-export const AUTHORIZE = 'authorize';
-export const LOAD_DASHBOARD = 'loadDashboard';
-export const LOAD_LIKES = 'loadLikes';
-export const LOAD_BLOG = 'loadBlog';
+export const Action = Object.freeze({
+	AUTHORIZE: 'authorize',
+	LOAD_DASHBOARD: 'loadDashboard',
+	LOAD_LIKES: 'loadLikes',
+	LOAD_BLOG: 'loadBlog'
+});
 
 export const Mode = Object.freeze({
 	VIEW:'view', INPUT:'input', DIALOG:'dialog', DIALOG_INPUT: 'dialog-input'
@@ -59,13 +63,13 @@ export const store = new Vuex.Store({
 		avatarUrl: state => args => tumblr.getAvatarURL(args.blogID, args.size)
 	},
 	mutations: {
-		[SET_AUTHORIZING]: (state, value) => state.authorizing = value,
-		[SET_CONSUMER_TOKEN]: (state, value) => {
+		[Mutation.SET_AUTHORIZING]: (state, value) => state.authorizing = value,
+		[Mutation.SET_CONSUMER_TOKEN]: (state, value) => {
 			state.consumerToken = value;
 			tumblr = new Tumblr(value);
 			Saved.consumerToken = value;
 		},
-		[ADD_ACCOUNT]: (state, value) => {
+		[Mutation.ADD_ACCOUNT]: (state, value) => {
 			if (value.reblogTarget == null) {
 				// set default reblog target if unset.
 				value.reblogTarget = value.userInfo.blogs.find(e => e.primary);
@@ -79,7 +83,7 @@ export const store = new Vuex.Store({
 			}
 			Saved.accounts = state.accounts;
 		},
-		[SET_CURRENT_ACCOUNT]: (state, value) => {
+		[Mutation.SET_CURRENT_ACCOUNT]: (state, value) => {
 			const oldCurrent = state.accounts.find(e => e.current);
 			if (oldCurrent !=null) {
 				oldCurrent.current = false;
@@ -90,11 +94,11 @@ export const store = new Vuex.Store({
 			Saved.accounts = state.accounts;
 			tumblr.setToken(state.currentAccount.token);
 		},
-		[SET_REBLOG_TARGET]: (state, value) => {
+		[Mutation.SET_REBLOG_TARGET]: (state, value) => {
 			state.currentAccount.reblogTarget = value;
 		},
-		[SET_VUETIFY_TAB_INDEX]: (state, value) => state.vuetifyTabIndex = value,
-		[OPEN_TAB]: (state, tab) => {
+		[Mutation.SET_VUETIFY_TAB_INDEX]: (state, value) => state.vuetifyTabIndex = value,
+		[Mutation.OPEN_TAB]: (state, tab) => {
 			/*
 			argument
 			{
@@ -136,7 +140,7 @@ export const store = new Vuex.Store({
 				state.vuetifyTabIndex = state.tabs.length.toString();
 			}
 		},
-		[UPDATE_TAB]: (state, updates) => {
+		[Mutation.UPDATE_TAB]: (state, updates) => {
 			/*
 			updates: {
 				tab: {key: String}
@@ -160,7 +164,7 @@ export const store = new Vuex.Store({
 				tab.loading = updates.loading;
 			}
 		},
-		[SELECT_POST]: (state, selection) => {
+		[Mutation.SELECT_POST]: (state, selection) => {
 			const tab = state.tabs.find(e => e.key === selection.tab.key);
 			tab.selectedIndex = selection.index;
 			if (tab.selectedPost) tab.selectedPost.selected = false;
@@ -170,11 +174,11 @@ export const store = new Vuex.Store({
 				Vue.set(tab.selectedPost, 'selectedPhotoIndex', 0);
 			}
 		},
-		[SELECT_PHOTO]: (state, selection) => {
+		[Mutation.SELECT_PHOTO]: (state, selection) => {
 			const tab = state.tabs.find(e => e.key === selection.tab.key);
 			tab.posts[selection.postIndex].selectedPhotoIndex = selection.photoIndex;
 		},
-		[SELECT_NEXT_POST]: (state) => {
+		[Mutation.SELECT_NEXT_POST]: (state) => {
 			const activeTabIndex = parseInt(state.vuetifyTabIndex) - 1;
 			if (activeTabIndex < 0) {
 				return;
@@ -193,7 +197,7 @@ export const store = new Vuex.Store({
 				Vue.set(activeTab.selectedPost, 'selectedPhotoIndex', 0);
 			}
 		},
-		[SELECT_PREVIOUS_POST]: (state) => {
+		[Mutation.SELECT_PREVIOUS_POST]: (state) => {
 			const activeTabIndex = parseInt(state.vuetifyTabIndex) - 1;
 			if (activeTabIndex < 0) {
 				return;
@@ -212,7 +216,7 @@ export const store = new Vuex.Store({
 				Vue.set(activeTab.selectedPost, 'selectedPhotoIndex', 0);
 			}
 		},
-		[SELECT_NEXT_PHOTO]: (state) => {
+		[Mutation.SELECT_NEXT_PHOTO]: (state) => {
 			const activeTabIndex = parseInt(state.vuetifyTabIndex) - 1;
 			if (activeTabIndex < 0) {
 				return;
@@ -223,7 +227,7 @@ export const store = new Vuex.Store({
 			}
 			post.selectedPhotoIndex = Math.min(post.photos.length-1, post.selectedPhotoIndex+1);
 		},
-		[SELECT_PREVIOUS_PHOTO]: (state) => {
+		[Mutation.SELECT_PREVIOUS_PHOTO]: (state) => {
 			const activeTabIndex = parseInt(state.vuetifyTabIndex) - 1;
 			if (activeTabIndex < 0) {
 				return;
@@ -234,13 +238,13 @@ export const store = new Vuex.Store({
 			}
 			post.selectedPhotoIndex = Math.max(0, post.selectedPhotoIndex-1);
 		},
-		[SET_MODE]: (state, mode) => {
+		[Mutation.SET_MODE]: (state, mode) => {
 			state.mode = mode;
 		}
 	},
 	actions: {
-		[AUTHORIZE]: (context) => {
-			context.commit(SET_AUTHORIZING, true);
+		[Action.AUTHORIZE]: (context) => {
+			context.commit(Mutation.SET_AUTHORIZING, true);
 			tumblr.getRequestToken({
 				oauth_callback: CALLBACK_URL,
 				onload: (response) => {
@@ -262,25 +266,25 @@ export const store = new Vuex.Store({
 											reblogTarget: userInfo.blogs.find(e=>e.primary),
 											current: false,
 										};
-										context.commit(ADD_ACCOUNT, newAccount);
-										context.commit(SET_CURRENT_ACCOUNT, newAccount);
+										context.commit(Mutation.ADD_ACCOUNT, newAccount);
+										context.commit(Mutation.SET_CURRENT_ACCOUNT, newAccount);
 									} // TODO error handling
-									context.commit(SET_AUTHORIZING, false);
+									context.commit(Mutation.SET_AUTHORIZING, false);
 								}
 							})
 						}));
 						observer.observe(document.querySelector(TOKEN_OBSERVER_ID),{ childList: true });
 						window.open(tumblr.getAuthorizeURL(params.oauth_token), '_blank');
 					} else if (response.status === 401) {
-						context.commit(SET_CONSUMER_TOKEN, null);
+						context.commit(Mutation.SET_CONSUMER_TOKEN, null);
 						// TODO show error message.
 					}
 				}
 			});
 		},
-		[LOAD_DASHBOARD]: (context, target) => {
+		[Action.LOAD_DASHBOARD]: (context, target) => {
 			const tab = context.state.tabs.find(e=>e.key === target.key);
-			context.commit(UPDATE_TAB, {tab:tab, loading: true});
+			context.commit(Mutation.UPDATE_TAB, {tab:tab, loading: true});
 			if (tab.currentOffset <= 200) {
 				tumblr.getUserDashboard({
 					offset: tab.currentOffset,
@@ -291,7 +295,7 @@ export const store = new Vuex.Store({
 					onload: (response) => {
 						let olderPosts = response.response.response.posts;
 						let postsToAdd = olderPosts.filter(p => tab.posts.length === 0 || p.id < last(tab.posts).id);
-						context.commit(UPDATE_TAB, {
+						context.commit(Mutation.UPDATE_TAB, {
 							tab: tab,
 							newPosts: postsToAdd, 
 							currentOffset: tab.currentOffset+(olderPosts.length-postsToAdd.length)+olderPosts.length,
@@ -316,7 +320,7 @@ export const store = new Vuex.Store({
 							let olderPosts = response.response.response.posts;
 							if (last(olderPosts).id >= last(tab.posts).id) { // all posts are duplicated.
 								if (postsToAdd) {
-									context.commit(UPDATE_TAB, {tab: tab, newPosts: postsToAdd, loading: false});
+									context.commit(Mutation.UPDATE_TAB, {tab: tab, newPosts: postsToAdd, loading: false});
 								} else {
 									sinceId = last(tab.posts).id - (last(tab.posts).id - sinceId) * 2;
 									loadWithSinceId(sinceId);
@@ -324,7 +328,7 @@ export const store = new Vuex.Store({
 							} else if (olderPosts[0].id < last(tab.posts).id) { // no duplication.
 								loadWithSinceId(olderPosts[0].id, postsToAdd ? olderPosts.concat(postsToAdd): olderPosts);
 							} else {	// some posts are duplicated
-								context.commit(UPDATE_TAB,{
+								context.commit(Mutation.UPDATE_TAB, {
 									tab: tab,
 									newPosts: postsToAdd ? olderPosts.filter(e => e.id < last(tab.posts).id).concat(postsToAdd): olderPosts.filter(e => e.id < last(tab.posts).id),
 									loading: false
@@ -335,14 +339,14 @@ export const store = new Vuex.Store({
 				})();
 			}
 		},
-		[LOAD_LIKES]: (context, target) => {
+		[Action.LOAD_LIKES]: (context, target) => {
 			const tab = context.state.tabs.find(e => e.key===target.key);
-			context.commit(UPDATE_TAB, {tab:tab, loading: true});
+			context.commit(Mutation.UPDATE_TAB, {tab:tab, loading: true});
 			tumblr.getUserLikes({
 				before: tab.posts.length>0 ? last(tab.posts).liked_timestamp : null,
 				onload: (response) => {
 					const posts = response.response.response.liked_posts;
-					context.commit(UPDATE_TAB, {
+					context.commit(Mutation.UPDATE_TAB, {
 						tab: tab,
 						newPosts: posts,
 						noOlderPost: posts.length === 0,
@@ -351,9 +355,9 @@ export const store = new Vuex.Store({
 				}
 			});
 		},
-		[LOAD_BLOG]: (context, target) => {
+		[Action.LOAD_BLOG]: (context, target) => {
 			const tab = context.state.tabs.find(e => e.key===target.key);
-			context.commit(UPDATE_TAB, {tab:tab, loading: true});
+			context.commit(Mutation.UPDATE_TAB, {tab:tab, loading: true});
 			tumblr.getPosts({
 				blogID: tab.args.blogName,
 				type: tab.args.filter,
@@ -364,7 +368,7 @@ export const store = new Vuex.Store({
 				onload: (response) => {
 					let olderPosts = response.response.response.posts;
 					let postsToAdd = olderPosts.filter(p => tab.posts.length > 0 ? p.id < last(tab.posts).id : true);
-					context.commit(UPDATE_TAB, {
+					context.commit(Mutation.UPDATE_TAB, {
 						tab: tab,
 						newPosts: postsToAdd,
 						offset: tab.currentOffset+(olderPosts.length-postsToAdd.length)+olderPosts.length,
