@@ -93,6 +93,8 @@ export const store = new Vuex.Store({
 			state.currentAccount = newCurrent;
 			Saved.accounts = state.accounts;
 			tumblr.setToken(state.currentAccount.token);
+			state.tabs = [];
+			state.vuetifyTabIndex = '0';
 		},
 		[Mutation.SET_REBLOG_TARGET]: (state, value) => {
 			state.currentAccount.reblogTarget = value;
@@ -150,7 +152,7 @@ export const store = new Vuex.Store({
 				[loading]: Boolean
 			}
 			*/
-			const tab = state.tabs.find(e => e.key === updates.tab.key);
+			const tab = updates.tab;
 			if (updates.newPosts != null) {
 				updates.newPosts.forEach(e => tab.posts.push(e));
 			}
@@ -239,6 +241,7 @@ export const store = new Vuex.Store({
 			post.selectedPhotoIndex = Math.max(0, post.selectedPhotoIndex-1);
 		},
 		[Mutation.SET_MODE]: (state, mode) => {
+			console.log('mode changed:' + mode);
 			state.mode = mode;
 		}
 	},
