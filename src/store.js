@@ -17,14 +17,16 @@ export const Mutation = Object.freeze({
 	SELECT_PREVIOUS_POST:'selectPreviousPost',
 	SELECT_NEXT_PHOTO:'selectNextPhoto',
 	SELECT_PREVIOUS_PHOTO:'selectPreviousPhoto',
-	SET_MODE:'setMode'
+	SET_MODE:'setMode',
+	UPDATE_POST: 'updatePost'
 });
 
 export const Action = Object.freeze({
 	AUTHORIZE: 'authorize',
 	LOAD_DASHBOARD: 'loadDashboard',
 	LOAD_LIKES: 'loadLikes',
-	LOAD_BLOG: 'loadBlog'
+	LOAD_BLOG: 'loadBlog',
+	REBLOG: 'reblog',
 });
 
 export const Mode = Object.freeze({
@@ -46,7 +48,7 @@ const initialState = {
 	mode: Mode.VIEW
 };
 
-let tumblr = initialState.consumerToken != null ? new Tumblr(initialState.consumerToken): null;
+let tumblr = initialState.consumerToken != null ? new Tumblr(initialState.consumerToken, Tumblr.LOG_DEBUG): null;
 let currentAccount = initialState.accounts.find(e=>e.current);
 initialState.currentAccount = currentAccount ? currentAccount: initialState.accounts[0];
 if (currentAccount) tumblr.setToken(initialState.currentAccount.token);
@@ -55,18 +57,30 @@ function key(tab) {
   return [tab.type, tab.args.blogName, tab.args.filter, tab.args.tag].join('-');
 }
 
+function activeTab(state) {
+	const activeTabIndex = parseInt(state.vuetifyTabIndex) - 1;
+	return activeTabIndex < 0 ? null : state.tabs[activeTabIndex];
+}
+
+function selectedPost(state) {
+	const tab = activeTab(state);
+	return tab == null ? null : tab.selectedPost;
+}
+
 export const store = new Vuex.Store({
 	state: initialState,
 	getters: {
 		lacksConsumerToken: state => state.consumerToken == null,
 		lacksActiveAccount: state => state.consumerToken != null && (state.currentAccount == null || state.authorizing), // TODO rename
-		avatarUrl: state => args => tumblr.getAvatarURL(args.blogID, args.size)
+		avatarUrl: state => args => tumblr.getAvatarURL(args.blogID, args.size),
+		activeTab: activeTab,
+		selectedPost: selectedPost,
 	},
 	mutations: {
 		[Mutation.SET_AUTHORIZING]: (state, value) => state.authorizing = value,
 		[Mutation.SET_CONSUMER_TOKEN]: (state, value) => {
 			state.consumerToken = value;
-			tumblr = new Tumblr(value);
+			tumblr = new Tumblr(value, Tumblr.LOG_DEBUG);
 			Saved.consumerToken = value;
 		},
 		[Mutation.ADD_ACCOUNT]: (state, value) => {
@@ -98,6 +112,7 @@ export const store = new Vuex.Store({
 		},
 		[Mutation.SET_REBLOG_TARGET]: (state, value) => {
 			state.currentAccount.reblogTarget = value;
+			Saved.accounts = state.accounts;
 		},
 		[Mutation.SET_VUETIFY_TAB_INDEX]: (state, value) => state.vuetifyTabIndex = value,
 		[Mutation.OPEN_TAB]: (state, tab) => {
@@ -243,6 +258,9 @@ export const store = new Vuex.Store({
 		[Mutation.SET_MODE]: (state, mode) => {
 			console.log('mode changed:' + mode);
 			state.mode = mode;
+		},
+		[Mutation.UPDATE_POST]: (state, update) => {
+			Vue.set(update.post, update.key, update.value);
 		}
 	},
 	actions: {
@@ -374,12 +392,52 @@ export const store = new Vuex.Store({
 					context.commit(Mutation.UPDATE_TAB, {
 						tab: tab,
 						newPosts: postsToAdd,
-						offset: tab.currentOffset+(olderPosts.length-postsToAdd.length)+olderPosts.length,
+						currentOffset: tab.currentOffset+(olderPosts.length-postsToAdd.length)+olderPosts.length,
 						noOlderPost: postsToAdd.length === 0,
 						loading: false
 					});
 				}
 			});
+		},
+		[Action.REBLOG]: (context, data) => {
+			context.commit(Mutation.UPDATE_POST,{post: data.post, key:'reblogging' , value:true});
+			tumblr.reblog(Object.assign(
+				{
+					blogID: data.blogID,
+					id: data.post.id,
+					reblog_key: data.post.reblog_key,
+					onload: function(response) {
+						console.log(response);
+						if (response.status === 201) {
+							context.commit(Mutation.UPDATE_POST,{post:data.post, key:'reblogging' , value:false});
+							context.commit(Mutation.UPDATE_POST,{post:data.post, key:'reblogged' , value:true});
+						} else {
+							console.log(response);
+							// TODO error handling
+						}
+					}
+				},
+				data.options
+			));
+		},
+		[Action.LIKE]: (context, data) => {
+			context.commit(Mutation.UPDATE_POST,{post: data.post, key: 'liking', value: true});
+			tumblr.like(Object.assign(
+				{
+					id: data.post.id,
+					reblog_key: data.post.reblog_key,
+					onload: function(response) {
+						if (response.status === 200) {
+							context.commit(Mutation.UPDATE_POST, {post: data.post, key: 'liking', value: false});
+							context.commit(Mutation.UPDATE_POST, {post: data.post, key: 'liked', value: true});
+						} else {
+							console.log(response);
+							// TODO error handling
+						}
+					}
+				},
+				data.options
+			))
 		}
 	},
 

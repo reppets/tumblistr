@@ -1,9 +1,10 @@
-import {Mutation, Mode} from './store';
+import {Mutation, Action, Mode} from './store';
 
 const NEXT_POST = 'right';
 const PREV_POST = 'left';
 const NEXT_PHOTO = 'shift down';
 const PREV_PHOTO = 'shift up';
+const QUICK_REBLOG = 'shift r';
 const SHOW_OPENER = 'o';
 
 
@@ -45,6 +46,20 @@ export default function bindKeys(store) {
 		keys: PREV_PHOTO,
 		on_keydown: doIf([Mode.VIEW], function() {
 			store.commit(Mutation.SELECT_PREVIOUS_PHOTO);
+		})
+	});
+
+	keyListener.register_combo({
+		keys: QUICK_REBLOG,
+		on_keydown: doIf([Mode.VIEW], function() {
+			const post = store.getters.selectedPost;
+			if (post == null) {
+				return;
+			}
+			store.dispatch(Action.REBLOG, {
+				blogID: store.state.currentAccount.reblogTarget.name,
+				post: post,
+			});
 		})
 	});
 	
