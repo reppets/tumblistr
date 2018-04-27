@@ -27,6 +27,7 @@ export const Action = Object.freeze({
 	LOAD_LIKES: 'loadLikes',
 	LOAD_BLOG: 'loadBlog',
 	REBLOG: 'reblog',
+	LIKE: 'like',
 });
 
 export const Mode = Object.freeze({
@@ -186,6 +187,7 @@ export const store = new Vuex.Store({
 			tab.selectedIndex = selection.index;
 			if (tab.selectedPost) tab.selectedPost.selected = false;
 			tab.selectedPost = selection.post;
+			console.log(tab.selectedPost);
 			Vue.set(tab.selectedPost, 'selected', true);
 			if (tab.selectedPost.type === 'photo' && tab.selectedPost.selectedPhotoIndex == null) {
 				Vue.set(tab.selectedPost, 'selectedPhotoIndex', 0);
@@ -209,6 +211,7 @@ export const store = new Vuex.Store({
 			activeTab.selectedIndex = newPostIndex;
 			if (activeTab.selectedPost) activeTab.selectedPost.selected = false;
 			activeTab.selectedPost = activeTab.posts[newPostIndex];
+			console.log(activeTab.selectedPost);
 			Vue.set(activeTab.selectedPost, 'selected', true);
 			if (activeTab.selectedPost.type === 'photo' && activeTab.selectedPost.selectedPhotoIndex == null) {
 				Vue.set(activeTab.selectedPost, 'selectedPhotoIndex', 0);
@@ -228,6 +231,7 @@ export const store = new Vuex.Store({
 			activeTab.selectedIndex = newPostIndex;
 			if (activeTab.selectedPost) activeTab.selectedPost.selected = false;
 			activeTab.selectedPost = activeTab.posts[newPostIndex];
+			console.log(activeTab.selectedPost);
 			Vue.set(activeTab.selectedPost, 'selected', true);
 			if (activeTab.selectedPost.type === 'photo' && activeTab.selectedPost.selectedPhotoIndex == null) {
 				Vue.set(activeTab.selectedPost, 'selectedPhotoIndex', 0);
@@ -441,7 +445,7 @@ export const store = new Vuex.Store({
 		}
 	},
 
-	strict: true // TODO: disable in production.
+	strict: false // TODO: disable in production.
 	 
 
 });

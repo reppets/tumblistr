@@ -5,6 +5,7 @@ const PREV_POST = 'left';
 const NEXT_PHOTO = 'shift down';
 const PREV_PHOTO = 'shift up';
 const QUICK_REBLOG = 'shift r';
+const QUICK_LIKE = 'shift l';
 const SHOW_OPENER = 'o';
 
 
@@ -58,6 +59,19 @@ export default function bindKeys(store) {
 			}
 			store.dispatch(Action.REBLOG, {
 				blogID: store.state.currentAccount.reblogTarget.name,
+				post: post,
+			});
+		})
+	});
+
+	keyListener.register_combo({
+		keys: QUICK_LIKE,
+		on_keydown: doIf([Mode.VIEW], function() {
+			const post = store.getters.selectedPost;
+			if (post == null) {
+				return;
+			}
+			store.dispatch(Action.LIKE, {
 				post: post,
 			});
 		})
