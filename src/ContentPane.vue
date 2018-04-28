@@ -1,26 +1,56 @@
 <template>
 	<div class="pane">
-		<div class="detail">
-			<div class="main-content">
-				<template v-if="tab.selectedPost">
-					<div v-if="tab.selectedPost.type==='text' && tab.selectedPost.format==='html'" class="elevation-2 text-content" v-html="tab.selectedPost.body"></div><!--TODO show title if present -->
-					<img v-if="tab.selectedPost.type==='photo'" v-show-on-load="tab.selectedPost.photos[tab.selectedPost.selectedPhotoIndex].original_size.url">
-					<div v-if="tab.selectedPost.type==='quote' && tab.selectedPost.format==='html'" class="elevation-2 text-content">
-						<blockquote v-html="tab.selectedPost.text"></blockquote>
-						<div class="source" v-html="tab.selectedPost.source"></div>
-					</div>
-					<div v-if="tab.selectedPost.type==='link' && tab.selectedPost.format==='html'" class="elevation-2 text-content">
-						<a :href="tab.selectedPost.url" target="_blank">{{tab.selectedPost.title}}</a>
-					</div>
-					<div v-else-if="tab.selectedPost.type==='chat' && tab.selectedPost.format==='html'" class="elevation-2 text-content" v-html="tab.selectedPost.body"></div><!--TODO show title if present -->
-					<div v-else-if="tab.selectedPost.type==='audio'" class="elevation-2" v-html="tab.selectedPost.embed"></div>
-					<div v-else-if="tab.selectedPost.type==='video'" class="elevation-2" v-html="tab.selectedPost.player[tab.selectedPost.player.length-1].embed_code"></div>
-				</template>
+		<v-layout column>
+			<v-card flat tile class="detail-content">
+				<div class="main-content">
+					<template v-if="tab.selectedPost">
+						<div v-if="tab.selectedPost.type==='text' && tab.selectedPost.format==='html'" class="elevation-2 text-content" v-html="tab.selectedPost.body"></div><!--TODO show title if present -->
+						<img v-if="tab.selectedPost.type==='photo'" v-show-on-load="tab.selectedPost.photos[tab.selectedPost.selectedPhotoIndex].original_size.url">
+						<div v-if="tab.selectedPost.type==='quote' && tab.selectedPost.format==='html'" class="elevation-2 text-content">
+							<blockquote v-html="tab.selectedPost.text"></blockquote>
+							<div class="source" v-html="tab.selectedPost.source"></div>
+						</div>
+						<div v-if="tab.selectedPost.type==='link' && tab.selectedPost.format==='html'" class="elevation-2 text-content">
+							<a :href="tab.selectedPost.url" target="_blank">{{tab.selectedPost.title}}</a>
+						</div>
+						<div v-else-if="tab.selectedPost.type==='chat' && tab.selectedPost.format==='html'" class="elevation-2 text-content" v-html="tab.selectedPost.body"></div><!--TODO show title if present -->
+						<div v-else-if="tab.selectedPost.type==='audio'" class="elevation-2" v-html="tab.selectedPost.embed"></div>
+						<div v-else-if="tab.selectedPost.type==='video'" class="elevation-2" v-html="tab.selectedPost.player[tab.selectedPost.player.length-1].embed_code"></div>
+					</template>
+				</div>
+				<div class="sub-content" v-if="tab.selectedPost && tab.selectedPost.type==='photo' && tab.selectedPost.photos.length > 1">
+					<img v-for="(photo, index) in tab.selectedPost.photos" :key="index + photo.original_size.url" v-show-on-load="photo.alt_sizes[photo.alt_sizes.length-2].url" @click="selectPhoto({tab:tab, postIndex:tab.selectedIndex, photoIndex: index})" :class="{selected: tab.selectedPost.selectedPhotoIndex===index}">
+				</div>
+			</v-card>
+			<div class="detail-metadata">
+				<v-expansion-panel v-if="tab.selectedPost">
+					<v-expansion-panel-content>
+						<div slot="header" @click.stop>
+							<img :src="avatarUrl({blogID:tab.selectedPost.blog_name, size:16})" class="inline-icon">
+							{{tab.selectedPost.blog_name}}
+							<v-tooltip top>
+								<v-btn slot="activator" small icon style="margin: 0;" @click="openBlog(tab.selectedPost.blog_name)"><v-icon small color="primary">tab</v-icon></v-btn>
+								<span>open this blog in a tab</span>
+							</v-tooltip>
+							<span style="font-size: smaller;">({{tab.selectedPost.date}})</span>
+							<v-tooltip top>
+								<v-btn slot="activator" small icon style="margin: 0;" target="_blank" :href="tab.selectedPost.post_url"><v-icon small color="primary">open_in_new</v-icon></v-btn>
+								<span>open this post in browser</span>
+							</v-tooltip>
+						</div>
+						<div class="metadata-body">
+							<span class="matadata-label"><v-icon>label</v-icon></span>
+							<span v-show="tab.selectedPost.tags.length === 0">no tag.</span>
+							<span><v-chip small v-for="tag in tab.selectedPost.tags" :key="tag" @click.stop="openBlog(tab.selectedPost.blog_name,tag)">{{tag}}</v-chip></span>
+						</div>
+						<div class="metadata-body" v-if="tab.selectedPost.caption != null && tab.selectedPost.caption !== ''">
+							<span class="matadata-label"><v-icon>note</v-icon></span>
+							<span v-html="tab.selectedPost.caption"></span>
+						</div>
+					</v-expansion-panel-content>
+				</v-expansion-panel>
 			</div>
-			<div class="sub-content" v-if="tab.selectedPost && tab.selectedPost.type==='photo' && tab.selectedPost.photos.length > 1">
-				<img v-for="(photo, index) in tab.selectedPost.photos" :key="index + photo.original_size.url" v-show-on-load="photo.alt_sizes[photo.alt_sizes.length-2].url" @click="selectPhoto({tab:tab, postIndex:tab.selectedIndex, photoIndex: index})" :class="{selected: tab.selectedPost.selectedPhotoIndex===index}">
-			</div>
-		</div>
+		</v-layout>
 		<div class="splitter"></div>
 		<div class="v-scroll list-pane" v-handled-element:list @scroll="triggerLoad" v-resize="triggerLoad">
 			  <div class="wrapper">
@@ -53,6 +83,12 @@ export default {
 			this.triggerLoad();
 		});
 	},
+	computed: Object.assign(
+		{},
+		Vuex.mapGetters([
+			'avatarUrl'
+		])
+	),
   methods: Object.assign(
 		{
 			triggerLoad: function() {
@@ -67,6 +103,9 @@ export default {
 			},
 			select: function(post, index) {
 				this.$store.commit(Mutation.SELECT_POST, {tab:this.tab, post: post, index: index})
+			},
+			openBlog: function(blogName, tag) {
+				this.$store.commit(Mutation.OPEN_DIALOG, {name: 'blog', blogName: blogName, tag: tag});
 			}
 		},
 		Vuex.mapMutations([
@@ -98,13 +137,14 @@ export default {
 }
 
 .splitter {
-	flex: 0 0 auto;
+	flex: 0 0 1px;
+	background-color: #CCCCCC;
 }
 
-.detail {
+.detail-content {
 	display: flex;
 	flex-direction: row;
-	flex: 1 1 auto;
+	flex: 1 1 0;
 	height: 100%;
 	.main-content {
 		flex: 1 1 auto;
@@ -146,11 +186,31 @@ export default {
 			min-height: 15px;
 			max-width: 100px;
 			margin: 3px 5px 3px 5px;
-			filter: drop-shadow(1px 2px 1px rgba(0,0,0,0.16)) drop-shadow(3px 2px 3px rgba(0,0,0,0.1));
+			 filter: drop-shadow(1px 2px 1px rgba(0,0,0,0.16)) drop-shadow(3px 2px 3px rgba(0,0,0,0.1)); 
 			&.selected {
 				margin: 3px 20px 3px -10px;
 			}
 		}
+	}
+}
+
+.detail-metadata {
+	flex: 0 0 auto;
+	border-top: 1px solid #cccccc;
+	p {
+		margin-bottom: 4px;
+	}
+	.expansion-panel__header {
+		padding: 6px 12px;
+	}
+	.metadata-body {
+		border-top: 1px solid #cccccc;
+		padding: 6px 12px;
+		display: flex;
+		align-items: center;
+	}
+	.matadata-label {
+		padding-right: 6px;
 	}
 }
 
@@ -179,7 +239,7 @@ export default {
   }
 }
 
-li {
+.list-area li {
   display: inline-block;
   margin: 0;
   padding: 5px;
@@ -197,9 +257,9 @@ li {
   top: 0;
   left: 0;
   width: 18px;
-  height: 18px;
-  background-color: rgba(255,255,255,0.6
-  );
+	height: 18px;
+	border-bottom-right-radius: 4px;
+  background-color: rgba(255,255,255,0.55);
 }
 .thumbnail {
   display: flex;
@@ -219,6 +279,10 @@ li {
 .landscape {
   height: 75px;
   width: auto;
+}
+.inline-icon {
+	display: inline-block;
+	vertical-align: middle;
 }
 </style>
 

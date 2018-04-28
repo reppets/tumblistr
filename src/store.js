@@ -18,7 +18,8 @@ export const Mutation = Object.freeze({
 	SELECT_NEXT_PHOTO:'selectNextPhoto',
 	SELECT_PREVIOUS_PHOTO:'selectPreviousPhoto',
 	SET_MODE:'setMode',
-	UPDATE_POST: 'updatePost'
+	UPDATE_POST: 'updatePost',
+	OPEN_DIALOG: 'openDialog',
 });
 
 export const Action = Object.freeze({
@@ -46,7 +47,8 @@ const initialState = {
 	authorizing: false,
 	tabs: [],
 	vuetifyTabIndex: '0',
-	mode: Mode.VIEW
+	mode: Mode.VIEW,
+	dialog: null
 };
 
 let tumblr = initialState.consumerToken != null ? new Tumblr(initialState.consumerToken, Tumblr.LOG_DEBUG): null;
@@ -265,6 +267,9 @@ export const store = new Vuex.Store({
 		},
 		[Mutation.UPDATE_POST]: (state, update) => {
 			Vue.set(update.post, update.key, update.value);
+		},
+		[Mutation.OPEN_DIALOG]: (state, dialog) => {
+			state.dialog = dialog;
 		}
 	},
 	actions: {

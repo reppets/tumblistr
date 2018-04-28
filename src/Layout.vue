@@ -1,8 +1,8 @@
 <template>
   <v-app>
-    <v-navigation-drawer app mini-variant dark mini-variant-width="40" style="display: flex; flex-direction: column; align-items: center;">
+    <v-navigation-drawer app mini-variant class="blue-grey darken-4" dark mini-variant-width="40" permanent style="display: flex; flex-direction: column; align-items: center;">
       <v-menu v-if="currentAccount">
-        <v-btn slot="activator" flat icon color="white"><v-avatar v-if="currentAccount" size="28px" class="grey darken-3"><img :src="currentAccount.userInfo.avatarUrl"></v-avatar></v-btn>
+        <v-btn slot="activator" flat icon color="white"><v-avatar color="blue-grey darken-4" v-if="currentAccount" size="28px" class="grey darken-3"><img :src="currentAccount.userInfo.avatarUrl"></v-avatar></v-btn>
         <v-list>
           <v-list-tile avatar>
             <v-list-tile-avatar><img :src="currentAccount.userInfo.avatarUrl"></v-list-tile-avatar>
@@ -26,7 +26,7 @@
       <hr style="width: 80%; height:1px; background-color:rgba(255,255,255,0.3); border: 0;" />
       <v-menu v-if="currentAccount">
         <v-btn slot="activator" flat icon color="white"><!-- TODO: border-radius styling -->
-          <v-avatar size="28px" tile class="grey darken-3"><img :src="currentAccount.reblogTarget.avatarUrl"  style="border-radius: 20%;"></v-avatar>
+          <v-avatar size="28px" tile color="blue-grey darken-4"><img :src="currentAccount.reblogTarget.avatarUrl"  style="border-radius: 20%;"></v-avatar>
           <v-icon small style="position: absolute; bottom: 0; right: 0;font-weight:bold;" class="c-reblog">repeat</v-icon>
         </v-btn>
         <v-list>
@@ -40,7 +40,7 @@
     </v-navigation-drawer>
     <v-content><v-container fluid fill-height pa-0><v-layout column>
       <div id="header-area" style="max-width:calc(100vw - 40px);">
-        <v-tabs id="tab-bar" v-model="activeTab" show-arrows>
+        <v-tabs id="tab-bar" v-model="activeTab" show-arrows color="blue-grey" dark>
           <v-tab v-for="tab in tabs" :key="tab.key">
             <span v-if="tab.type==='dashboard'" class="tab-label">
               <v-icon>home</v-icon>Dashboard<TypeIcon v-if="tab.args.filter" :type="tab.args.filter"/>
@@ -116,6 +116,19 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="openBlogDialog" max-width="600px">
+      <v-card v-if="openBlogDialog">
+        <v-card-title class="title">Open Blog</v-card-title>
+        <v-card-actions><v-layout justify-end align-center>
+          <v-flex xs3 mx-1><v-text-field label="Blog Name" v-model="dialog.blogName" @focus="setMode('input')" @blur="setMode('view')"></v-text-field></v-flex>
+          <v-flex xs2 mx-1><v-select label="Post Type" v-model="blogType" :items="types" dense @focus="setMode('input')" @blur="setMode('view')"></v-select></v-flex>
+          <v-flex xs3 mx-1><v-text-field label="Tag Filter" v-model="dialog.tag" @focus="setMode('input')" @blur="setMode('view')"></v-text-field></v-flex>
+          <v-btn color="primary" @click.stop="openTab({type:'blog', args:{blogName: dialog.blogName, filter: blogType, tag: dialog.tag}})">Open</v-btn>
+        </v-layout></v-card-actions>
+      </v-card>
+    </v-dialog>
+            
   </v-app>
 </template>
 
@@ -155,10 +168,22 @@ export default {
         set: function(value) {
           this.$store.commit(Mutation.SET_VUETIFY_TAB_INDEX, value);
         }
+      },
+      openBlogDialog: {
+        get: function() {
+          const dialog = this.$store.state.dialog;
+          return dialog != null && dialog.name === 'blog';
+        },
+        set: function(value) {
+          console.log(value);
+          if (value === false) {
+            this.$store.commit(Mutation.OPEN_DIALOG, null);
+          }
+        }
       }
     },
     Vuex.mapState([
-      'accounts','currentAccount','authorizing','tabs'
+      'accounts','currentAccount','authorizing','tabs','dialog'
     ]),
     Vuex.mapGetters([
       'lacksConsumerToken', 'lacksActiveAccount', 'avatarUrl'
@@ -166,10 +191,13 @@ export default {
   ),
   methods: Object.assign(
     {
-
+      openTab: function(args) {
+        this.$store.commit(Mutation.OPEN_TAB, args);
+        this.$store.commit(Mutation.OPEN_DIALOG, null);
+      }
     },
     Vuex.mapMutations([
-      Mutation.SET_CONSUMER_TOKEN, Mutation.SET_CURRENT_ACCOUNT, Mutation.SET_REBLOG_TARGET, Mutation.OPEN_TAB, Mutation.SET_MODE
+      Mutation.SET_CONSUMER_TOKEN, Mutation.SET_CURRENT_ACCOUNT, Mutation.SET_REBLOG_TARGET, Mutation.SET_MODE
     ]),
     Vuex.mapActions([
       Action.AUTHORIZE,

@@ -1,7 +1,7 @@
 <template>
 	<li :class="itemClass" @click="select">
 		<div :class="cellClass" v-scroll-to-me="post.selected"><template v-once>
-			<div v-if="post.type==='text'">{{post.summary}}</div>
+			<div v-if="post.type==='text'"><TypeIcon :type="post.type" />{{post.summary}}</div>
 			<img v-else-if="post.type==='photo'" :src="thumbnailUrl">
 			<div v-else-if="post.type==='quote'"><TypeIcon :type="post.type" />{{post.summary}}</div>
 			<div v-else-if="post.type==='link'"><TypeIcon :type="post.type" />{{post.summary}}</div>
