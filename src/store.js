@@ -70,6 +70,17 @@ function selectedPost(state) {
 	return tab == null ? null : tab.selectedPost;
 }
 
+function setVuetifyTabIndex(state, value) {
+	const oldIndex = parseInt(state.vuetifyTabIndex);
+	if (oldIndex > 0) {
+		state.tabs[oldIndex-1].selected = false;
+	}
+	if (value !== '0') {
+		state.tabs[parseInt(value) - 1].selected = true;
+	}
+	state.vuetifyTabIndex = value;
+}
+
 export const store = new Vuex.Store({
 	state: initialState,
 	getters: {
@@ -117,7 +128,7 @@ export const store = new Vuex.Store({
 			state.currentAccount.reblogTarget = value;
 			Saved.accounts = state.accounts;
 		},
-		[Mutation.SET_VUETIFY_TAB_INDEX]: (state, value) => state.vuetifyTabIndex = value,
+		[Mutation.SET_VUETIFY_TAB_INDEX]: setVuetifyTabIndex,
 		[Mutation.OPEN_TAB]: (state, tab) => {
 			/*
 			argument
@@ -150,14 +161,15 @@ export const store = new Vuex.Store({
 						selectedPost: null,
 						selectedIndex: null,
 						noOlderPost: false,
-						loading: false
+						loading: false,
+						selected: false,
 					}, tab
 				);
 				if (tab.type === 'dashboard' || tab.type === 'blog') {
 					newTab.currentOffset = 0;
 				}
 				state.tabs.push(newTab);
-				state.vuetifyTabIndex = state.tabs.length.toString();
+				setVuetifyTabIndex(state, state.tabs.length.toString());
 			}
 		},
 		[Mutation.UPDATE_TAB]: (state, updates) => {

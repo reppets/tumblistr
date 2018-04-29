@@ -93,7 +93,7 @@ export default {
 		{
 			triggerLoad: function() {
 				const el = this.domElements.list;
-				if (el.scrollTop + el.clientHeight + 80 < el.scrollHeight || this.tab.loading || this.tab.noOlderPost) {
+				if (!this.tab.selected || el.scrollTop + el.clientHeight + 80 < el.scrollHeight || this.tab.loading || this.tab.noOlderPost) {
 					return;
 				}
 				this.load();
@@ -111,7 +111,14 @@ export default {
 		Vuex.mapMutations([
 			Mutation.SELECT_PHOTO
 		])
-	)
+	),
+	watch: {
+		'tab.selected': function(newValue) {
+			if (newValue) {
+				this.triggerLoad();
+			}
+		}
+	}
 }
 
 </script>
