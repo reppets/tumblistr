@@ -1,6 +1,6 @@
 <template>
 	<div class="pane">
-		<v-layout column>
+		<v-layout column style="height: 100%">
 			<v-card flat tile class="detail-content">
 				<div class="main-content">
 					<template v-if="tab.selectedPost">
@@ -21,11 +21,15 @@
 				<div class="sub-content" v-if="tab.selectedPost && tab.selectedPost.type==='photo' && tab.selectedPost.photos.length > 1">
 					<img v-for="(photo, index) in tab.selectedPost.photos" :key="index + photo.original_size.url" v-show-on-load="photo.alt_sizes[photo.alt_sizes.length-2].url" @click="selectPhoto({tab:tab, postIndex:tab.selectedIndex, photoIndex: index})" :class="{selected: tab.selectedPost.selectedPhotoIndex===index}">
 				</div>
+				<div class="detail-content-overlay">
+					<v-icon v-show="tab.selectedPost && tab.selectedPost.reblogging" class="c-reblog animation-rotate">repeat</v-icon>
+					<v-icon v-show="tab.selectedPost && tab.selectedPost.liking" class="c-like animation-pulse">favorite</v-icon>
+				</div>
 			</v-card>
 			<div class="detail-metadata">
 				<v-expansion-panel v-if="tab.selectedPost">
 					<v-expansion-panel-content>
-						<div slot="header" @click.stop>
+						<div slot="header" style="position: relative; margin-right: 0.5em;" @click.stop>
 							<img :src="avatarUrl({blogID:tab.selectedPost.blog_name, size:16})" class="inline-icon">
 							{{tab.selectedPost.blog_name}}
 							<v-tooltip top>
@@ -37,6 +41,16 @@
 								<v-btn slot="activator" small icon style="margin: 0;" target="_blank" :href="tab.selectedPost.post_url"><v-icon small color="primary">open_in_new</v-icon></v-btn>
 								<span>open this post in browser</span>
 							</v-tooltip>
+							<span style="position: absolute; right: 0;">
+								<v-tooltip top>
+									<v-btn slot="activator" small icon style="margin: 0;" @click="reblog(tab.selectedPost)"><v-icon small :class="{'c-reblog':tab.selectedPost.reblogged, bold: true}">repeat</v-icon></v-btn>
+									<span>click to reblog</span>
+								</v-tooltip>
+								<v-tooltip top>
+									<v-btn slot="activator" small icon style="margin: 0;" @click="like(tab.selectedPost)"><v-icon small  :class="{'c-like':tab.selectedPost.liked}">favorite</v-icon></v-btn>
+									<span>click to {{tab.selectedPost.liked ? 'un': ''}}like</span>
+								</v-tooltip>
+							</span>
 						</div>
 						<div class="metadata-body">
 							<span class="matadata-label"><v-icon>label</v-icon></span>
@@ -66,7 +80,7 @@
 import TypeIcon from "./TypeIcon.vue";
 import PostCell from "./PostCell.vue";
 import {last} from "./utils"
-import {Mutation} from "./store.js";
+import {Mutation, Action} from "./store.js";
 
 export default {
   components: {
@@ -106,6 +120,12 @@ export default {
 			},
 			openBlog: function(blogName, tag) {
 				this.$store.commit(Mutation.OPEN_DIALOG, {name: 'blog', blogName: blogName, tag: tag});
+			},
+			reblog: function(post) {
+				this.$store.dispatch(Action.REBLOG, {blogID: this.$store.state.currentAccount.reblogTarget.name, post: post});
+			},
+			like: function(post) {
+				this.$store.dispatch(Action.LIKE, {post: post});
 			}
 		},
 		Vuex.mapMutations([
@@ -199,11 +219,30 @@ export default {
 			}
 		}
 	}
+	.detail-content-overlay {
+		position: absolute;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		pointer-events: none;
+		left: 0;
+		top: 0;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(0,0,0,0);
+		> * {
+			margin: auto;
+		}
+		.icon {
+			font-size: 80px;
+		}
+	}
 }
 
 .detail-metadata {
 	flex: 0 0 auto;
 	border-top: 1px solid #cccccc;
+	max-height: 50%;
 	p {
 		margin-bottom: 4px;
 	}
@@ -260,13 +299,32 @@ export default {
 }
 
 .cell-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 18px;
-	height: 18px;
-	border-bottom-right-radius: 4px;
-  background-color: rgba(255,255,255,0.55);
+	position: absolute;
+	pointer-events: none;
+	&.type {
+		top: 0;
+		left: 0;
+		padding: 0 2px;
+		border-bottom-right-radius: 4px;
+		background-color: rgba(255,255,255,0.55);
+	}
+	&.state {
+		bottom: 0;
+		right: 0;
+		padding: 0 2px;
+		border-top-left-radius: 4px;
+		background-color: rgba(255,255,255,0.55);
+	}
+	&.loading {
+		top: 0;
+		left: 0;
+		background-color: transparent;
+		width: 100%;
+		height: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
 }
 .thumbnail {
   display: flex;
@@ -290,6 +348,51 @@ export default {
 .inline-icon {
 	display: inline-block;
 	vertical-align: middle;
+}
+
+.bold {
+	font-weight: bold;
+}
+
+.animation-rotate {
+	animation: rotate 0.8s ease-in-out infinite;
+}
+
+.animation-pulse {
+	animation: pulse 0.8s ease-in-out infinite;
+}
+
+@keyframes rotate {
+	0% {
+		transform: rotate(0);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes pulse {
+	0% {
+		transform:scale(1.0);
+	}
+	20% {
+		transform:scale(1.15);
+	}
+	25% {
+		transform:scale(1.0);
+	}
+	45% {
+		transform:scale(1.13);
+	}
+	50% {
+		transform: scale(1.0);
+	}
+	95% {
+		transform: scale(0.97);
+	}
+	100% {
+		transform: scale(1.0);
+	}
 }
 </style>
 

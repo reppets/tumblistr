@@ -323,6 +323,9 @@ html {
 
 .c-reblog {
   color: #56bc8a !important; }
+
+.c-like {
+  color: #d95e40 !important; }
 </style>
 
 
