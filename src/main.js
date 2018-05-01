@@ -7,7 +7,28 @@ import bindKeys from './keybind';
 
 const TOKEN_OBSERVER_ID = '#tokenObserver';
 
-(function main() {
+function appendStyleSheets() {
+	return new Promise(function(resolve, reject) {
+		let font = document.createElement('link');
+		font.setAttribute('rel', 'stylesheet');
+		font.setAttribute('href', 'https://fonts.googleapis.com/css?family=Roboto:400,500,700,400italic|Material+Icons');
+		document.head.appendChild(font);
+		let style = document.createElement('link');
+		style.setAttribute('rel', 'stylesheet');
+		style.setAttribute('href', 'https://unpkg.com/vuetify/dist/vuetify.min.css');
+		style.onload = function() {
+			resolve();
+		};
+		style.onerror = function(e) {
+			reject(e);
+		}
+		document.head.appendChild(style);
+	});
+}
+
+appendStyleSheets().then(main, console.log); // TODO handle error
+
+function main() {
 
 	if (window.location.search.indexOf('callback') > 0) {
 		if (isValidCallback()) {
@@ -19,18 +40,6 @@ const TOKEN_OBSERVER_ID = '#tokenObserver';
 
 	// add function to window for callback.
 	window.eval('window.oauthCallback=function(token,verifier){document.querySelector("' + TOKEN_OBSERVER_ID + '").insertAdjacentHTML("beforeend", "<input type=\\"hidden\\"name=\\""+token+"\\" value=\\""+verifier+"\\">")}');
-
-	// append stylesheet element
-	(function () {
-		let font = document.createElement('link');
-		font.setAttribute('rel', 'stylesheet');
-		font.setAttribute('href', 'https://fonts.googleapis.com/css?family=Roboto:400,500,700,400italic|Material+Icons');
-		document.head.appendChild(font);
-		let style = document.createElement('link');
-		style.setAttribute('rel', 'stylesheet');
-		style.setAttribute('href', 'https://unpkg.com/vuetify/dist/vuetify.min.css');
-		document.head.appendChild(style);
-	})();
 
 	// Global Event Listeners ----------------------------------------------------------------------------
 
@@ -69,4 +78,4 @@ const TOKEN_OBSERVER_ID = '#tokenObserver';
 		components: { Layout },
 	});
 
-}) ();
+}
