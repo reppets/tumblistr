@@ -107,7 +107,7 @@ export default {
 		{
 			triggerLoad: function() {
 				const el = this.domElements.list;
-				if (!this.tab.selected || el.scrollTop + el.clientHeight + 80 < el.scrollHeight || this.tab.loading || this.tab.noOlderPost) {
+				if (!this.tab.selected || el.scrollTop + el.clientHeight * 2 < el.scrollHeight || this.tab.loading || this.tab.noOlderPost) {
 					return;
 				}
 				this.load();
