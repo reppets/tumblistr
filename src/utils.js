@@ -36,3 +36,33 @@ export function last(array, index) {
         return array[array.length-1];
     }
 }
+
+export class Intermitter {
+    constructor(func, interval) {
+        this.func = func;
+        this.interval = interval;
+        this.triggered = false;
+        this.passInterval = true;
+    }
+
+    doFunc() {
+        this.func();
+        this.passInterval = false;
+        this.triggered = false;
+        setTimeout(() => {
+            if (this.triggered) {
+                this.doFunc();
+            } else {
+                this.passInterval = true;
+            }
+        }, this.interval);
+    }
+
+    trigger() {
+        if (this.passInterval) {
+            this.doFunc();
+        }
+    }
+
+    
+}

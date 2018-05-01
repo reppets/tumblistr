@@ -18,7 +18,7 @@
 						<div v-else-if="tab.selectedPost.type==='video'" class="elevation-2" v-html="tab.selectedPost.player[tab.selectedPost.player.length-1].embed_code"></div>
 					</template>
 				</div>
-				<div class="sub-content" v-if="tab.selectedPost && tab.selectedPost.type==='photo' && tab.selectedPost.photos.length > 1">
+				<div class="sub-content" v-if="tab.selectedPost && tab.selectedPost.type==='photo' && tab.selectedPost.photos.length > 1" @wheel="subcontentScroll">
 					<img v-for="(photo, index) in tab.selectedPost.photos" :key="index + photo.original_size.url" v-show-on-load="photo.alt_sizes[photo.alt_sizes.length-2].url" @click="selectPhoto({tab:tab, postIndex:tab.selectedIndex, photoIndex: index})" :class="{selected: tab.selectedPost.selectedPhotoIndex===index}">
 				</div>
 				<div class="detail-content-overlay">
@@ -79,7 +79,7 @@
 <script>
 import TypeIcon from "./TypeIcon.vue";
 import PostCell from "./PostCell.vue";
-import {last} from "./utils"
+import {last, Intermitter} from "./utils"
 import {Mutation, Action} from "./store.js";
 
 export default {
@@ -126,7 +126,15 @@ export default {
 			},
 			like: function(post) {
 				this.$store.dispatch(Action.LIKE, {post: post});
-			}
+			},
+			subcontentScroll: function(event) {
+				if (event.deltaY > 2) {
+					this.subcontentNextIntermitter.trigger();
+				} else if (event.deltaY < -2) {
+					this.subcontentPrevIntermitter.trigger();
+				}
+			},
+			log: console.log
 		},
 		Vuex.mapMutations([
 			Mutation.SELECT_PHOTO
@@ -138,6 +146,14 @@ export default {
 				this.triggerLoad();
 			}
 		}
+	},
+	created: function() {
+		this.subcontentNextIntermitter = new Intermitter(() => {
+			this.$store.commit(Mutation.SELECT_NEXT_PHOTO);
+		}, 100);
+		this.subcontentPrevIntermitter = new Intermitter(() => {
+			this.$store.commit(Mutation.SELECT_PREVIOUS_PHOTO);
+		}, 100);
 	}
 }
 
