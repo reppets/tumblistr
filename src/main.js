@@ -41,9 +41,9 @@ function main() {
 	// add function to window for callback.
 	window.eval('window.oauthCallback=function(token,verifier){document.querySelector("' + TOKEN_OBSERVER_ID + '").insertAdjacentHTML("beforeend", "<input type=\\"hidden\\"name=\\""+token+"\\" value=\\""+verifier+"\\">")}');
 
-	// Global Event Listeners ----------------------------------------------------------------------------
-
 	Vue.directive('handled-element',{
+		// make the DOM element with this direscive accessible in the vm instance with this.domElements[<arg>]
+		// (<arg> is a string appended after the directive and a colon).
 		bind: function(el, binding, vnode) {
 			if (!vnode.context.domElements) vnode.context.domElements = {};
 			vnode.context.domElements[binding.arg] = el;
