@@ -4,9 +4,12 @@
 			<v-card flat tile class="detail-content">
 				<div class="main-content">
 					<template v-if="tab.selectedPost">
-						<div v-if="tab.selectedPost.type==='text' && tab.selectedPost.format==='html'" class="elevation-2 text-content" v-html="tab.selectedPost.body"></div><!--TODO show title if present -->
+						<div v-if="tab.selectedPost.type==='text'" class="text-content">
+							<h1 v-if="tab.selectedPost.title != null" v-text="tab.selectedPost.title" />
+							<div v-html="tab.selectedPost.body" />
+						</div>
 						<img v-if="tab.selectedPost.type==='photo'" v-show-on-load="tab.selectedPost.photos[tab.selectedPost.selectedPhotoIndex].original_size.url">
-						<div v-if="tab.selectedPost.type==='quote' && tab.selectedPost.format==='html'" class="elevation-2 text-content">
+						<div v-if="tab.selectedPost.type==='quote'" class="text-content">
 							<blockquote v-html="tab.selectedPost.text"></blockquote>
 							<div class="source" v-html="tab.selectedPost.source"></div>
 						</div>
@@ -194,8 +197,11 @@ export default {
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		padding: 15px;
+		p {
+			margin: 0;
+		}
 		> img {
+			padding: 15px;
 			display: block;
 			max-width: 100%;
 			max-height: 100%;
@@ -203,10 +209,16 @@ export default {
 			object-fit: contain;
 		}
 		> .text-content {
-			margin: 10px;
+			align-self: flex-start;
+			margin: 0;
 			overflow-y: auto;
 			max-width: 100%;
+			width: 100%;
 			max-height: 100%;
+			padding: 25px;
+			blockquote {
+				padding-left: 20px;
+			}
 			iframe {
 				display: block;
 			}
@@ -220,6 +232,7 @@ export default {
 		justify-content: flex-start;
 		align-items: center;
 		height: 100%;
+		width: 110px;
 		padding-top: 15px;
 		padding-bottom: 15px;
 		img {
@@ -260,7 +273,7 @@ export default {
 	border-top: 1px solid #cccccc;
 	max-height: 50%;
 	p {
-		margin-bottom: 4px;
+		margin: 0;
 	}
 	.expansion-panel__header {
 		padding: 6px 12px;
