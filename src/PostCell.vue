@@ -12,7 +12,7 @@
 					<img :src="post.thumbnail_url" :class="thumbnailClass">
 				</div>
 				<div v-else-if="post.type==='answer'"><TypeIcon :type="post.type" />{{post.summary}}</div>
-				<div v-if="post.type==='video'" class="cell-overlay type"><TypeIcon :type="post.type" /></div>
+				<div v-if="post.type==='video'" class="cell-overlay type"><TypeIcon :type="post.type" />{{post.video_type}}</div>
 				<div v-if="post.type==='photo' && post.photos.length > 1" class="cell-overlay type"><v-icon small>collections</v-icon></div>
 			</template>
 			<div v-if="post.reblogging" class="cell-overlay loading"><v-icon x-large class="c-reblog animation-rotate">repeat</v-icon></div>
@@ -24,7 +24,6 @@
 		</div>
 	</li>
 </template>
-
 <script>
 import TypeIcon from "./TypeIcon.vue";
 
@@ -60,7 +59,7 @@ export default {
 		}
 	},
 	methods: {
-		select: function() {
+		select: function(ev) {
 			this.$emit('select');
 		}
 	}

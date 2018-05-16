@@ -23,6 +23,17 @@ function appendStyleSheets() {
 			reject(e);
 		}
 		document.head.appendChild(style);
+
+		let vine = document.createElement('script')
+		vine.setAttribute('src', 'https://platform.vine.co/static/scripts/embed.js');
+		document.head.appendChild(vine);
+		let flickr = document.createElement('script')
+		flickr.setAttribute('src', 'https://embedr.flickr.com/assets/client-code.js');
+		document.head.appendChild(flickr);
+		let instagram = document.createElement('script')
+		instagram.setAttribute('src', 'https://www.instagram.com/embed.js');
+		document.head.appendChild(instagram);
+
 	});
 }
 

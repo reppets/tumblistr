@@ -229,6 +229,7 @@ html {
   max-height: 100%;
   margin: 0;
   padding: 0;
+  overflow: hidden;
 }
 
 #app-container {
@@ -269,6 +270,12 @@ html {
 
 .v-scroll {
   overflow-y: auto;
+  max-height: 100%;
+  height: 100%;
+}
+
+.v-scroll-force {
+  overflow-y: scroll !important;
   max-height: 100%;
   height: 100%;
 }

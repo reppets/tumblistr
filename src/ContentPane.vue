@@ -13,12 +13,49 @@
 							<blockquote v-html="tab.selectedPost.text"></blockquote>
 							<div class="source" v-html="tab.selectedPost.source"></div>
 						</div>
-						<div v-if="tab.selectedPost.type==='link' && tab.selectedPost.format==='html'" class="elevation-2 text-content">
-							<a :href="tab.selectedPost.url" target="_blank">{{tab.selectedPost.title}}</a>
+						<div v-if="tab.selectedPost.type==='link'" class="text-content">
+							<a :href="tab.selectedPost.url" target="_blank">
+								<v-card hover>
+									<v-card-title>{{tab.selectedPost.title}}</v-card-title>
+									<v-card-media v-if="tab.selectedPost.photos" :src="tab.selectedPost.photos[0].original_size.url" height="200"/>
+									<v-card-text>
+										<div>{{tab.selectedPost.excerpt}}</div>
+										<div>{{tab.selectedPost.link_author}} / {{tab.selectedPost.publisher}}</div>
+									</v-card-text>
+								</v-card>
+							</a>
+							<div v-if="tab.selectedPost.description != null && tab.selectedPost.description !== ''" v-html="tab.selectedPost.description">
+							</div>
 						</div>
-						<div v-else-if="tab.selectedPost.type==='chat' && tab.selectedPost.format==='html'" class="elevation-2 text-content" v-html="tab.selectedPost.body"></div><!--TODO show title if present -->
-						<div v-else-if="tab.selectedPost.type==='audio'" class="elevation-2" v-html="tab.selectedPost.embed"></div>
-						<div v-else-if="tab.selectedPost.type==='video'" class="elevation-2" v-html="tab.selectedPost.player[tab.selectedPost.player.length-1].embed_code"></div>
+						<div v-else-if="tab.selectedPost.type==='chat'" class="text-content">
+							<h1 v-if="tab.selectedPost.title != null && tab.selectedPost.title !== ''" v-text="tab.selectedPost.title" />
+							<p v-for="(dialog,index) in tab.selectedPost.dialogue" :key="index"><span class="chat-name" v-text="dialog.label" />{{dialog.phrase}}</p>
+						</div>
+						<div v-else-if="tab.selectedPost.type==='audio'" class="audio-content">
+							<div class="album-art">
+								<img v-show-on-load="tab.selectedPost.album_art">
+							</div>
+							<div class="player">
+								<audio controls :src="tab.selectedPost.audio_url"/><!-- error(404 etc) handling -->
+							</div>
+						</div>
+						<template v-else-if="tab.selectedPost.type==='video'">
+							<video v-if="tab.selectedPost.video_type==='tumblr'" :src="tab.selectedPost.video_url" controls muted />
+							<div class="embed" v-if="tab.selectedPost.video_type==='youtube'" v-html="tab.selectedPost.player[tab.selectedPost.player.length-1].embed_code" />
+							<div class="embed" v-if="tab.selectedPost.video_type==='vimeo'" v-html="tab.selectedPost.player[tab.selectedPost.player.length-1].embed_code" />
+							<div class="embed" v-if="tab.selectedPost.video_type==='dailymotion'" v-html="tab.selectedPost.player[tab.selectedPost.player.length-1].embed_code" />
+							<div class="flickr--embed" v-if="tab.selectedPost.video_type==='flickr'" v-html="tab.selectedPost.player[tab.selectedPost.player.length-1].embed_code" />
+							<div class="flickr--embed" v-if="tab.selectedPost.video_type==='instagram' && instagram()" v-html="tab.selectedPost.player[tab.selectedPost.player.length-1].embed_code" />
+							<div class="embed" v-if="tab.selectedPost.video_type==='vine'" v-html="tab.selectedPost.player[tab.selectedPost.player.length-1].embed_code" />
+							<!-- flickr, instagram, vine -->
+						</template>
+						<div v-else-if="tab.selectedPost.type==='answer'" class="text-content">
+							<a v-if="tab.selectedPost.asking_url" :href="tab.selectedPost.asking_url"><p v-text="tab.selectedPost.asking_name"/></a>
+							<p v-else v-html="tab.selectedPost.asking_name" />
+							<blockquote v-html="tab.selectedPost.question" />
+							<blockquote v-html="tab.selectedPost.answer" />							
+						</div>
+
 					</template>
 				</div>
 				<div class="sub-content" v-if="tab.selectedPost && tab.selectedPost.type==='photo' && tab.selectedPost.photos.length > 1" @wheel="subcontentScroll">
@@ -61,17 +98,21 @@
 							<span><v-chip small v-for="tag in tab.selectedPost.tags" :key="tag" @click.stop="openBlog(tab.selectedPost.blog_name,tag)">{{tag}}</v-chip></span>
 						</div>
 						<div class="metadata-body" v-if="tab.selectedPost.caption != null && tab.selectedPost.caption !== ''">
-							<span class="matadata-label"><v-icon>note</v-icon></span>
+							<span class="matadata-label"><v-icon>subject</v-icon></span>
 							<span v-html="tab.selectedPost.caption"></span>
+						</div>
+						<div class="metadata-body" v-if="tab.selectedPost.source_url != null">
+							<span class="matadata-label"><v-icon>public</v-icon></span>
+							<a :href="tab.selectedPost.source_url" target="_blank">{{tab.selectedPost.source_title}}</a>
 						</div>
 					</v-expansion-panel-content>
 				</v-expansion-panel>
 			</div>
 		</v-layout>
 		<div class="splitter"></div>
-		<div class="v-scroll list-pane" v-handled-element:list @scroll="triggerLoad" v-resize="triggerLoad">
+		<div class="v-scroll-force list-pane" v-handled-element:list @scroll="triggerLoad" v-resize="triggerLoad">
 			  <div class="wrapper">
-					<ul class="list-area">
+					<ul class="list-area" @click="log">
 						<PostCell v-for="(post,index) in tab.posts" :key="post.id" @select="select(post, index)" :post="post"></PostCell>
 					</ul>
 				</div>
@@ -137,7 +178,13 @@ export default {
 					this.subcontentPrevIntermitter.trigger();
 				}
 			},
-			log: console.log
+			log: console.log,
+			instagram: function() {
+				this.$nextTick(function() {
+					window.eval('instgrm.Embeds.process()');
+				});
+				return true;
+			}
 		},
 		Vuex.mapMutations([
 			Mutation.SELECT_PHOTO
@@ -178,7 +225,6 @@ export default {
 	width: 50%;
 	max-width: 50%;
 	max-height: 100%;
-	overflow-y: auto;
 	padding: 0;
 }
 
@@ -200,13 +246,35 @@ export default {
 		p {
 			margin: 0;
 		}
-		> img {
+		> img,video {
 			padding: 15px;
 			display: block;
 			max-width: 100%;
 			max-height: 100%;
 			width: auto;
 			object-fit: contain;
+		}
+		.embed {
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+			padding: 15px;
+			> iframe {
+				margin: auto;
+				display: block;
+				max-width: 100%;
+				max-height: 100%;
+				width: 100%;
+				height: 100%;
+				object-fit: contain;
+			}
+		}
+		.flickr--embed {
+			max-width: 100%;
+			max-height: 100%;
+			width: 100%;
+			height: 100%;
+			overflow: auto;
 		}
 		> .text-content {
 			align-self: flex-start;
@@ -221,6 +289,37 @@ export default {
 			}
 			iframe {
 				display: block;
+			}
+			img {
+				max-width: 100%;
+				height: auto;
+			}
+			.chat-name {
+				font-weight: bold;
+				margin-right: 1em;
+			}
+			&.center {
+				justify-content: center;
+			}
+		}
+		> .audio-content {
+			display: flex;
+			flex-direction: column;
+			align-items: stretch;
+			max-width: 70%;
+			max-height: 90%;
+			overflow: hidden;
+			img {
+				display: block;
+			}
+			.album-art {
+				flex: 0 0 auto;
+			}
+			.player {
+				flex: 0 0 auto;
+				audio {
+					width: 100%;
+				}
 			}
 		}
 	}
@@ -304,6 +403,7 @@ export default {
   height: 75px;
   overflow: hidden;
   position: relative;
+	user-select: none;
   div {
     line-height: 1;
     font-size: xx-small;

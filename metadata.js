@@ -8,6 +8,7 @@
 // @require https://cdn.rawgit.com/dmauro/Keypress/2.1.3/keypress-2.1.3.min.js
 // @require https://github.com/reppets/tumblr-lib-gm/raw/master/tumblr.user.js
 // @require https://unpkg.com/vue
+// @require https://unpkg.com/vuex
 // @require https://unpkg.com/vuetify/dist/vuetify.js
 // @grant GM_xmlhttpRequest
 // @grant GM_deleteValue

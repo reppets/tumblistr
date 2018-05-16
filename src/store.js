@@ -86,7 +86,7 @@ export const store = new Vuex.Store({
 	getters: {
 		lacksConsumerToken: state => state.consumerToken == null,
 		lacksActiveAccount: state => state.consumerToken != null && (state.currentAccount == null || state.authorizing), // TODO rename
-		avatarUrl: state => args => tumblr.getAvatarURL(args.blogID, args.size),
+		avatarUrl: state => args => args && args.blogID ? tumblr.getAvatarURL(args.blogID, args.size): '',
 		activeTab: activeTab,
 		selectedPost: selectedPost,
 	},
