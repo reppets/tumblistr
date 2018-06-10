@@ -3,6 +3,11 @@
 		<div class="wrapper">
 			<ul class="list-area">
 				<PostCell v-for="(post,index) in tab.posts" :key="post.id" @select="select(post, index)" :post="post"></PostCell>
+				<li class="loading" v-if="tab.loading">
+					<div>
+						<v-progress-circular :size="60" :width="5" indeterminate color="grey"/>
+					</div>
+				</li>
 			</ul>
 		</div>
 	</div>
@@ -49,3 +54,13 @@ export default {
 
 }
 </script>
+
+<style lang="scss">
+	.list-area .loading > div {
+		width:  75px;
+		height: 75px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+</style>
