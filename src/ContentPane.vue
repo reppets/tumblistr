@@ -1,177 +1,21 @@
 <template>
 	<div class="pane">
-		<v-layout column style="height: 100%">
-			<v-card flat tile class="detail-content">
-				<div class="main-content">
-					<template v-if="tab.selectedPost">
-						<div v-if="tab.selectedPost.type==='text'" class="text-content">
-							<h1 v-if="tab.selectedPost.title != null" v-text="tab.selectedPost.title" />
-							<div v-html="tab.selectedPost.body" />
-						</div>
-						<img v-if="tab.selectedPost.type==='photo'" v-show-on-load="tab.selectedPost.photos[tab.selectedPost.selectedPhotoIndex].original_size.url">
-						<div v-if="tab.selectedPost.type==='quote'" class="text-content">
-							<blockquote v-html="tab.selectedPost.text"></blockquote>
-							<div class="source" v-html="tab.selectedPost.source"></div>
-						</div>
-						<div v-if="tab.selectedPost.type==='link'" class="text-content">
-							<a :href="tab.selectedPost.url" target="_blank">
-								<v-card hover>
-									<v-card-title>{{tab.selectedPost.title}}</v-card-title>
-									<v-card-media v-if="tab.selectedPost.photos" :src="tab.selectedPost.photos[0].original_size.url" height="200"/>
-									<v-card-text>
-										<div>{{tab.selectedPost.excerpt}}</div>
-										<div>{{tab.selectedPost.link_author}} / {{tab.selectedPost.publisher}}</div>
-									</v-card-text>
-								</v-card>
-							</a>
-							<div v-if="tab.selectedPost.description != null && tab.selectedPost.description !== ''" v-html="tab.selectedPost.description">
-							</div>
-						</div>
-						<div v-else-if="tab.selectedPost.type==='chat'" class="text-content">
-							<h1 v-if="tab.selectedPost.title != null && tab.selectedPost.title !== ''" v-text="tab.selectedPost.title" />
-							<p v-for="(dialog,index) in tab.selectedPost.dialogue" :key="index"><span class="chat-name" v-text="dialog.label" />{{dialog.phrase}}</p>
-						</div>
-						<div v-else-if="tab.selectedPost.type==='audio'" class="audio-content">
-							<div class="album-art">
-								<img v-show-on-load="tab.selectedPost.album_art">
-							</div>
-							<div class="player">
-								<audio controls :src="tab.selectedPost.audio_url"/><!-- error(404 etc) handling -->
-							</div>
-						</div>
-						<template v-else-if="tab.selectedPost.type==='video'">
-							<video v-if="tab.selectedPost.video_type==='tumblr'" :src="tab.selectedPost.video_url" controls muted />
-							<div class="embed" v-if="tab.selectedPost.video_type==='youtube'" v-html="tab.selectedPost.player[tab.selectedPost.player.length-1].embed_code" />
-							<div class="embed" v-if="tab.selectedPost.video_type==='vimeo'" v-html="tab.selectedPost.player[tab.selectedPost.player.length-1].embed_code" />
-							<div class="embed" v-if="tab.selectedPost.video_type==='dailymotion'" v-html="tab.selectedPost.player[tab.selectedPost.player.length-1].embed_code" />
-							<div class="flickr--embed" v-if="tab.selectedPost.video_type==='flickr'" v-html="tab.selectedPost.player[tab.selectedPost.player.length-1].embed_code" />
-							<div class="flickr--embed" v-if="tab.selectedPost.video_type==='instagram' && instagram()" v-html="tab.selectedPost.player[tab.selectedPost.player.length-1].embed_code" />
-							<div class="embed" v-if="tab.selectedPost.video_type==='vine'" v-html="tab.selectedPost.player[tab.selectedPost.player.length-1].embed_code" />
-							<!-- flickr, instagram, vine -->
-						</template>
-						<div v-else-if="tab.selectedPost.type==='answer'" class="text-content">
-							<a v-if="tab.selectedPost.asking_url" :href="tab.selectedPost.asking_url"><p v-text="tab.selectedPost.asking_name"/></a>
-							<p v-else v-html="tab.selectedPost.asking_name" />
-							<blockquote v-html="tab.selectedPost.question" />
-							<blockquote v-html="tab.selectedPost.answer" />							
-						</div>
-
-					</template>
-				</div>
-				<div class="sub-content" v-if="tab.selectedPost && tab.selectedPost.type==='photo' && tab.selectedPost.photos.length > 1" @wheel="subcontentScroll">
-					<img v-for="(photo, index) in tab.selectedPost.photos" :key="index + photo.original_size.url" v-show-on-load="photo.alt_sizes[photo.alt_sizes.length-2].url" @click="selectPhoto({tab:tab, postIndex:tab.selectedIndex, photoIndex: index})" :class="{selected: tab.selectedPost.selectedPhotoIndex===index}">
-				</div>
-				<div class="detail-content-overlay">
-					<v-icon v-show="tab.selectedPost && tab.selectedPost.reblogging" class="c-reblog animation-rotate">repeat</v-icon>
-					<v-icon v-show="tab.selectedPost && tab.selectedPost.liking" class="c-like animation-pulse">favorite</v-icon>
-				</div>
-			</v-card>
-			<div class="detail-metadata">
-				<v-expansion-panel v-if="tab.selectedPost">
-					<v-expansion-panel-content>
-						<div slot="header" style="position: relative; margin-right: 0.5em;" @click.stop>
-							<img :src="avatarUrl({blogID:tab.selectedPost.blog_name, size:16})" class="inline-icon">
-							{{tab.selectedPost.blog_name}}
-							<v-tooltip top>
-								<v-btn slot="activator" small icon style="margin: 0;" @click="openBlog(tab.selectedPost.blog_name)"><v-icon small color="primary">tab</v-icon></v-btn>
-								<span>open this blog in a tab</span>
-							</v-tooltip>
-							<span style="font-size: smaller;">({{tab.selectedPost.date}})</span>
-							<v-tooltip top>
-								<v-btn slot="activator" small icon style="margin: 0;" target="_blank" :href="tab.selectedPost.post_url"><v-icon small color="primary">open_in_new</v-icon></v-btn>
-								<span>open this post in browser</span>
-							</v-tooltip>
-							<span style="position: absolute; right: 0;">
-								<v-tooltip top>
-									<v-btn slot="activator" small icon style="margin: 0;" @click="reblog(tab.selectedPost)"><v-icon small :class="{'c-reblog':tab.selectedPost.reblogged, bold: true}">repeat</v-icon></v-btn>
-									<span>click to reblog</span>
-								</v-tooltip>
-								<v-tooltip top>
-									<v-btn slot="activator" small icon style="margin: 0;" @click="like(tab.selectedPost)"><v-icon small  :class="{'c-like':tab.selectedPost.liked}">favorite</v-icon></v-btn>
-									<span>click to {{tab.selectedPost.liked ? 'un': ''}}like</span>
-								</v-tooltip>
-							</span>
-						</div>
-						<div class="metadata-body">
-							<span class="matadata-label"><v-icon>label</v-icon></span>
-							<span v-show="tab.selectedPost.tags.length === 0">no tag.</span>
-							<span><v-chip small v-for="tag in tab.selectedPost.tags" :key="tag" @click.stop="openBlog(tab.selectedPost.blog_name,tag)">{{tag}}</v-chip></span>
-						</div>
-						<div class="metadata-body" v-if="tab.selectedPost.caption != null && tab.selectedPost.caption !== ''">
-							<span class="matadata-label"><v-icon>subject</v-icon></span>
-							<span v-html="tab.selectedPost.caption"></span>
-						</div>
-						<div class="metadata-body" v-if="tab.selectedPost.source_url != null">
-							<span class="matadata-label"><v-icon>public</v-icon></span>
-							<a :href="tab.selectedPost.source_url" target="_blank">{{tab.selectedPost.source_title}}</a>
-						</div>
-					</v-expansion-panel-content>
-				</v-expansion-panel>
-			</div>
-		</v-layout>
+		<PostDetail :post="tab.selectedPost" :postIndex="tab.selectedIndex" />
 		<div class="splitter"></div>
 		<PostList :tab="tab" @load-request="load"/>
 	</div>
 </template>
 
 <script>
-import TypeIcon from "./TypeIcon.vue";
 import PostList from "./PostList.vue";
-import {last, Intermitter} from "./utils"
-import {Mutation, Action} from "./store.js";
+import PostDetail from "./PostDetail.vue";
 
 export default {
   components: {
-    TypeIcon, PostList
+		PostList,PostDetail
   },
   props: {
 		tab: Object,
-	},
-	computed: Object.assign(
-		{},
-		Vuex.mapGetters([
-			'avatarUrl'
-		])
-	),
-  methods: Object.assign(
-		{
-			thumbnailUrl: function(photo) {
-				return photo.alt_sizes[photo.alt_sizes.length-1].url;
-			},
-			openBlog: function(blogName, tag) {
-				this.$store.commit(Mutation.OPEN_DIALOG, {name: 'blog', blogName: blogName, tag: tag});
-			},
-			reblog: function(post) {
-				this.$store.dispatch(Action.REBLOG, {blogID: this.$store.state.currentAccount.reblogTarget.name, post: post});
-			},
-			like: function(post) {
-				this.$store.dispatch(Action.LIKE, {post: post});
-			},
-			subcontentScroll: function(event) {
-				if (event.deltaY > 2) {
-					this.subcontentNextIntermitter.trigger();
-				} else if (event.deltaY < -2) {
-					this.subcontentPrevIntermitter.trigger();
-				}
-			},
-			instagram: function() {
-				this.$nextTick(function() {
-					window.eval('instgrm.Embeds.process()');
-				});
-				return true;
-			}
-		},
-		Vuex.mapMutations([
-			Mutation.SELECT_PHOTO
-		])
-	),
-	created: function() {
-		this.subcontentNextIntermitter = new Intermitter(() => {
-			this.$store.commit(Mutation.SELECT_NEXT_PHOTO);
-		}, 100);
-		this.subcontentPrevIntermitter = new Intermitter(() => {
-			this.$store.commit(Mutation.SELECT_PREVIOUS_PHOTO);
-		}, 100);
 	}
 }
 
