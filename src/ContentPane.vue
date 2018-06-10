@@ -110,36 +110,22 @@
 			</div>
 		</v-layout>
 		<div class="splitter"></div>
-		<div class="v-scroll-force list-pane" v-handled-element:list @scroll="triggerLoad" v-resize="triggerLoad">
-			  <div class="wrapper">
-					<ul class="list-area" @click="log">
-						<PostCell v-for="(post,index) in tab.posts" :key="post.id" @select="select(post, index)" :post="post"></PostCell>
-					</ul>
-				</div>
-		</div>
+		<PostList :tab="tab" @load-request="load"/>
 	</div>
 </template>
 
 <script>
 import TypeIcon from "./TypeIcon.vue";
-import PostCell from "./PostCell.vue";
+import PostList from "./PostList.vue";
 import {last, Intermitter} from "./utils"
 import {Mutation, Action} from "./store.js";
 
 export default {
   components: {
-    TypeIcon, PostCell
+    TypeIcon, PostList
   },
   props: {
 		tab: Object,
-	},
-  mounted: function() {
-    this.triggerLoad();
-	},
-	updated: function() {
-		this.$nextTick(function() {
-			this.triggerLoad();
-		});
 	},
 	computed: Object.assign(
 		{},
@@ -149,18 +135,8 @@ export default {
 	),
   methods: Object.assign(
 		{
-			triggerLoad: function() {
-				const el = this.domElements.list;
-				if (!this.tab.selected || el.scrollTop + el.clientHeight * 2 < el.scrollHeight || this.tab.loading || this.tab.noOlderPost) {
-					return;
-				}
-				this.load();
-			},
 			thumbnailUrl: function(photo) {
 				return photo.alt_sizes[photo.alt_sizes.length-1].url;
-			},
-			select: function(post, index) {
-				this.$store.commit(Mutation.SELECT_POST, {tab:this.tab, post: post, index: index})
 			},
 			openBlog: function(blogName, tag) {
 				this.$store.commit(Mutation.OPEN_DIALOG, {name: 'blog', blogName: blogName, tag: tag});
@@ -178,7 +154,6 @@ export default {
 					this.subcontentPrevIntermitter.trigger();
 				}
 			},
-			log: console.log,
 			instagram: function() {
 				this.$nextTick(function() {
 					window.eval('instgrm.Embeds.process()');
@@ -190,13 +165,6 @@ export default {
 			Mutation.SELECT_PHOTO
 		])
 	),
-	watch: {
-		'tab.selected': function(newValue) {
-			if (newValue) {
-				this.triggerLoad();
-			}
-		}
-	},
 	created: function() {
 		this.subcontentNextIntermitter = new Intermitter(() => {
 			this.$store.commit(Mutation.SELECT_NEXT_PHOTO);
