@@ -1,6 +1,6 @@
 <template>
 	<div class="pane">
-		<PostDetail :post="tab.selectedPost" :postIndex="tab.selectedIndex" />
+		<PostDetail :tab="tab" :post="tab.selectedPost" :postIndex="tab.selectedIndex" />
 		<div class="splitter"></div>
 		<PostList :tab="tab" @load-request="load"/>
 	</div>

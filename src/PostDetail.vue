@@ -120,6 +120,7 @@ export default {
 		TypeIcon
 	},
 	props: {
+		tab: Object,
 		post: Object,
 		postIndex: Number
 	},
